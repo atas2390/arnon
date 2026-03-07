@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Accessibility — Arnon</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro',sans-serif;background:#0a0a0a;color:#eee;line-height:1.8}
+a{color:#eee;text-decoration:underline;text-underline-offset:3px}
+a:hover{color:#fff}
+a:focus-visible{outline:2px solid #eee;outline-offset:2px}
+.wrap{max-width:640px;margin:0 auto;padding:48px 24px 80px}
+h1{font-size:28px;font-weight:700;margin-bottom:8px;letter-spacing:-0.5px}
+h2{font-size:18px;font-weight:600;margin-top:32px;margin-bottom:8px}
+p{color:#aaa;font-size:15px;margin-bottom:16px}
+ul{color:#aaa;font-size:15px;margin:0 0 16px 24px;display:flex;flex-direction:column;gap:6px}
+.back{display:inline-block;margin-bottom:32px;font-size:14px;color:#888}
+.updated{font-size:13px;color:#555;margin-top:40px}
+@media(prefers-color-scheme:light){
+  body{background:#fff;color:#111}
+  a{color:#111}
+  p,ul{color:#555}
+  .back{color:#999}
+  .updated{color:#bbb}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<a href="/" class="back">← Back to home</a>
+
+<h1>Accessibility Statement</h1>
+<p>Arnon is committed to making its website and application accessible to all users, including people with disabilities, in accordance with WCAG 2.1 Level AA guidelines.</p>
+
+<h2>What we've done</h2>
+<ul>
+  <li>ARIA labels on all interactive elements (buttons, inputs, dialogs)</li>
+  <li>Keyboard navigation support with visible focus indicators</li>
+  <li>Screen reader compatibility — live regions for new messages and alerts</li>
+  <li>Semantic HTML — proper table headers, roles, and landmarks</li>
+  <li>Responsive design — works on all screen sizes</li>
+  <li>No user-scalable restrictions — users can zoom freely</li>
+  <li>Sufficient color contrast for text and interactive elements</li>
+  <li>Light and dark mode support via system preference</li>
+</ul>
+
+<h2>Known limitations</h2>
+<ul>
+  <li>Voice notes require microphone access and may not be available on all assistive devices</li>
+  <li>Audio playback controls use the browser's native player</li>
+</ul>
+
+<h2>Feedback</h2>
+<p>If you encounter any accessibility issues, please open an issue on <a href="https://github.com/atas2390/arnon/issues">GitHub</a>.</p>
+
+<p class="updated">Last updated: March 2026</p>
+
+</div>
+</body>
+</html>

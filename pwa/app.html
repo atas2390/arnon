@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Arnon</title>
+<style>
+:root{--bg:#0a0a0a;--sf:#141414;--bd:#222;--t1:#eee;--t2:#888;--t3:#555;--bl:#3b82f6;--gn:#22c55e;--rd:#ef4444;--am:#f59e0b}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--t1);-webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+.screen{display:none;height:100%;flex-direction:column}.screen.on{display:flex}
+
+#home{align-items:center;justify-content:center;text-align:center;padding:24px;gap:12px}
+#home h1{font-size:40px;font-weight:700;letter-spacing:-1.5px}
+#home .tag{font-size:15px;color:var(--t2);font-style:italic;margin-bottom:28px}
+.hbtn{width:100%;max-width:300px;padding:15px;border-radius:12px;font-size:15px;font-weight:600}
+.hbtn.pri{background:var(--t1);color:var(--bg)}
+#home .foot{font-size:11px;color:var(--t3);margin-top:28px;line-height:1.7}
+
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:50;align-items:center;justify-content:center;padding:24px}
+.modal-bg.on{display:flex}
+.modal{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:24px;width:100%;max-width:360px}
+.modal h3{font-size:17px;font-weight:600;margin-bottom:14px}
+.modal input,.modal select{width:100%;padding:13px 14px;background:var(--bg);border:1px solid var(--bd);border-radius:10px;color:var(--t1);font-size:14px;outline:none;margin-bottom:12px;font-family:inherit;-webkit-appearance:none}
+.modal input:focus,.modal select:focus{border-color:var(--bl)}
+.modal label{display:block;font-size:13px;color:var(--t2);margin-bottom:6px}
+.mbtns{display:flex;gap:8px}
+.mbtns button{flex:1;padding:11px;border-radius:10px;font-size:14px;font-weight:600}
+.mcan{background:var(--bg);border:1px solid var(--bd);color:var(--t2)}
+.mgo{background:var(--bl);color:#fff}
+
+#link{align-items:center;justify-content:center;text-align:center;padding:24px;gap:14px}
+#link h2{font-size:20px;font-weight:600}
+#link .desc{font-size:14px;color:var(--t2);max-width:300px;line-height:1.6}
+.linkbox{background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:14px;font-size:12px;color:var(--bl);word-break:break-all;max-width:360px;width:100%;font-family:monospace;text-align:left}
+.lbtns{display:flex;gap:8px;max-width:360px;width:100%}
+.lbtns button{flex:1;padding:13px;border-radius:10px;font-size:14px;font-weight:600}
+.lcopy{background:var(--t1);color:var(--bg)}
+.lshare{background:var(--sf);border:1px solid var(--bd)}
+.wait{font-size:12px;color:var(--t3);margin-top:20px}
+.ttl-badge{font-size:12px;color:var(--am);margin-top:4px}
+
+#chat{height:100%}
+.cht-hd{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--bd);background:var(--sf);flex-shrink:0}
+.cht-hd h3{font-size:15px;font-weight:600}
+.cht-st{font-size:11px;color:var(--t2);display:flex;align-items:center;gap:5px}
+.stdot{width:7px;height:7px;border-radius:50%;background:var(--gn)}.stdot.off{background:var(--rd)}
+.cht-right{display:flex;align-items:center;gap:10px}
+.timer{font-family:monospace;font-size:13px;color:var(--am);font-weight:600}
+.bend{padding:7px 14px;background:var(--rd);color:#fff;border-radius:8px;font-size:12px;font-weight:600}
+
+.msgs{flex:1;overflow-y:auto;padding:12px 16px;display:flex;flex-direction:column;gap:6px;-webkit-overflow-scrolling:touch}
+.m{max-width:80%;padding:9px 13px;border-radius:14px;font-size:14px;line-height:1.5;word-wrap:break-word;animation:mi .15s ease}
+@keyframes mi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.m.s{align-self:flex-end;background:var(--bl);color:#fff;border-bottom-right-radius:4px}
+.m.r{align-self:flex-start;background:var(--sf);border:1px solid var(--bd);border-bottom-left-radius:4px}
+.m.sys{align-self:center;color:var(--t3);font-size:11px;padding:3px 0;background:none}
+.m audio{display:block;height:32px;width:180px;margin-top:4px}
+
+.inbar{display:flex;align-items:center;gap:8px;padding:10px 12px;border-top:1px solid var(--bd);background:var(--sf);flex-shrink:0}
+.inbar input{flex:1;padding:11px 14px;background:var(--bg);border:1px solid var(--bd);border-radius:20px;color:var(--t1);font-size:14px;outline:none}
+.inbar input:focus{border-color:var(--bl)}
+.ibtn{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.bsend{background:var(--bl);color:#fff}
+.bsend:disabled{background:var(--bd);color:var(--t3)}
+.bmic{background:var(--sf);border:1px solid var(--bd);color:var(--t2)}
+.bmic.rec{background:var(--rd);border-color:var(--rd);color:#fff;animation:rp 1s infinite}
+@keyframes rp{0%,100%{opacity:1}50%{opacity:.5}}
+
+#ended{align-items:center;justify-content:center;text-align:center;padding:24px;gap:10px}
+#ended h2{font-size:22px;font-weight:600}
+#ended p{font-size:14px;color:var(--t2);max-width:320px;line-height:1.6}
+#ended button{margin-top:14px;padding:13px 28px;background:var(--t1);color:var(--bg);border-radius:10px;font-size:14px;font-weight:600}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--t1);color:var(--bg);padding:8px 20px;border-radius:50px;font-size:13px;font-weight:500;z-index:99;opacity:0;transition:opacity .25s;pointer-events:none}.toast.on{opacity:1}
+button:focus-visible,.hbtn:focus-visible,.ibtn:focus-visible,.bend:focus-visible,.mcan:focus-visible,.mgo:focus-visible,.lcopy:focus-visible,.lshare:focus-visible{outline:2px solid var(--bl);outline-offset:2px}
+@media(max-width:500px){.m{max-width:88%}#home h1{font-size:32px}}
+@media(max-width:360px){.lbtns{flex-direction:column}.cht-hd{padding:10px 12px}}
+</style>
+</head>
+<body>
+
+<div id="home" class="screen on">
+  <h1>arnon</h1>
+  <div class="tag">You are none.</div>
+  <button class="hbtn pri" onclick="showCreate()">New conversation</button>
+  <div class="foot">End-to-end encrypted · No account · No history<br>Close the tab — everything is gone.</div>
+</div>
+
+<div id="createModal" class="modal-bg" role="dialog" aria-modal="true" aria-label="New conversation" onclick="if(event.target===this)hideCreate()">
+  <div class="modal">
+    <h3>New conversation</h3>
+    <label for="ttlSelect">Self-destruct</label>
+    <select id="ttlSelect">
+      <option value="0">Off</option>
+      <option value="300">5 minutes</option>
+      <option value="900" selected>15 minutes</option>
+      <option value="1800">30 minutes</option>
+      <option value="3600">1 hour</option>
+    </select>
+    <div class="mbtns"><button class="mcan" onclick="hideCreate()">Cancel</button><button class="mgo" onclick="create()">Create</button></div>
+  </div>
+</div>
+
+
+
+<div id="link" class="screen">
+  <h2>Share this link</h2>
+  <div class="desc">Send it to the person you want to talk to. Chat starts when they open it.</div>
+  <div class="linkbox" id="linkBox"></div>
+  <div class="lbtns"><button class="lcopy" onclick="copyLink()">Copy</button><button class="lshare" onclick="shareLink()">Share</button></div>
+  <div class="ttl-badge" id="linkTtl"></div>
+  <div class="wait">Waiting for the other person...</div>
+</div>
+
+<div id="chat" class="screen">
+  <div class="cht-hd">
+    <div><h3>arnon</h3><div class="cht-st"><span class="stdot" id="stDot" role="status" aria-label="Connection status"></span><span id="stTxt">Connected</span></div></div>
+    <div class="cht-right">
+      <div class="timer" id="timerEl"></div>
+      <button class="bend" aria-label="End conversation" onclick="endChat()">End</button>
+    </div>
+  </div>
+  <div class="msgs" id="msgs" aria-live="polite" role="log"></div>
+  <div class="inbar">
+    <button class="ibtn bmic" id="micBtn" aria-label="Record voice note" onclick="toggleRec()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></button>
+    <input id="msgIn" placeholder="Message" aria-label="Type a message" onkeydown="if(event.key==='Enter')send()">
+    <button class="ibtn bsend" aria-label="Send message" onclick="send()"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
+  </div>
+</div>
+
+<div id="ended" class="screen">
+  <h2>Conversation destroyed</h2>
+  <p>All messages, keys, and data have been destroyed. Nothing remains.</p>
+  <button onclick="location.reload()">Start new</button>
+</div>
+
+<div class="toast" id="toast" role="alert" aria-live="assertive"></div>
+
+<script>
+const RELAY = 'wss://relay.arnon.app/ws';
+const BASE = 'https://arnon.app/pwa/app.html';
+let ws, room, myKeys, derivedKey, peerPub, connected = false;
+let ttlTotal = 0, ttlRemaining = 0, timerInterval = null;
+
+// ── UTIL ──
+function show(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('on')); document.getElementById(id).classList.add('on'); }
+function toast(t) { const e = document.getElementById('toast'); e.textContent = t; e.classList.add('on'); setTimeout(() => e.classList.remove('on'), 2000); }
+function addMsg(html, cls) { const d = document.getElementById('msgs'), m = document.createElement('div'); m.className = 'm ' + cls; m.innerHTML = html; d.appendChild(m); d.scrollTop = d.scrollHeight; }
+function escHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+function fmtTime(s) { const m = Math.floor(s / 60), sec = s % 60; return m + ':' + String(sec).padStart(2, '0'); }
+
+// ── CRYPTO (Web Crypto API — ECDH + AES-GCM) ──
+async function genKeys() { myKeys = await crypto.subtle.generateKey({ name: 'ECDH', namedCurve: 'P-256' }, true, ['deriveKey']); }
+async function exportPub() { const r = await crypto.subtle.exportKey('raw', myKeys.publicKey); return btoa(String.fromCharCode(...new Uint8Array(r))); }
+async function importPub(b64) { const b = Uint8Array.from(atob(b64), c => c.charCodeAt(0)); return crypto.subtle.importKey('raw', b, { name: 'ECDH', namedCurve: 'P-256' }, false, []); }
+async function derive(pub) { derivedKey = await crypto.subtle.deriveKey({ name: 'ECDH', public: pub }, myKeys.privateKey, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']); }
+
+// ── PADDING — text→4KB, voice→100KB ──
+const PAD_TEXT = 4096;
+const PAD_VOICE = 131072;
+function pad(data, size) {
+  // [4 bytes real length][real data][random padding]
+  const len = data.byteLength || data.length;
+  const buf = new Uint8Array(size);
+  crypto.getRandomValues(buf); // fill with random so padding is indistinguishable
+  new DataView(buf.buffer).setUint32(0, len);
+  buf.set(new Uint8Array(data instanceof ArrayBuffer ? data : new TextEncoder().encode(data)), 4);
+  return buf;
+}
+function unpad(buf) {
+  const len = new DataView(buf).getUint32(0);
+  return buf.slice(4, 4 + len);
+}
+
+async function enc(plaintext) {
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const padded = pad(new TextEncoder().encode(plaintext), PAD_TEXT);
+  const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, derivedKey, padded);
+  return { iv: btoa(String.fromCharCode(...iv)), ct: btoa(String.fromCharCode(...new Uint8Array(ct))) };
+}
+async function dec(iv64, ct64) {
+  const iv = Uint8Array.from(atob(iv64), c => c.charCodeAt(0));
+  const ct = Uint8Array.from(atob(ct64), c => c.charCodeAt(0));
+  const padded = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, derivedKey, ct);
+  return new TextDecoder().decode(unpad(padded));
+}
+async function encBuf(data) {
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const padded = pad(data, PAD_VOICE);
+  const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, derivedKey, padded);
+  return { iv: btoa(String.fromCharCode(...iv)), ct: btoa(String.fromCharCode(...new Uint8Array(ct))) };
+}
+async function decBuf(iv64, ct64) {
+  const iv = Uint8Array.from(atob(iv64), c => c.charCodeAt(0));
+  const ct = Uint8Array.from(atob(ct64), c => c.charCodeAt(0));
+  return unpad(await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, derivedKey, ct));
+}
+
+// ── TIMER ──
+function startTimer(seconds) {
+  if (seconds <= 0) return;
+  ttlTotal = seconds;
+  ttlRemaining = seconds;
+  const el = document.getElementById('timerEl');
+  el.textContent = fmtTime(ttlRemaining);
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    ttlRemaining--;
+    el.textContent = fmtTime(Math.max(0, ttlRemaining));
+    if (ttlRemaining <= 60) el.style.color = 'var(--rd)';
+    if (ttlRemaining <= 0) { clearInterval(timerInterval); selfDestruct(); }
+  }, 1000);
+}
+function selfDestruct() { destroy(); show('ended'); document.querySelector('#ended h2').textContent = 'Self-destructed'; }
+
+// ── WEBSOCKET ──
+function connect(onOpen) {
+  ws = new WebSocket(RELAY);
+  ws.onopen = onOpen;
+  ws.onmessage = e => handle(JSON.parse(e.data));
+  ws.onclose = () => { if (connected) { connected = false; setStatus(false); } };
+  ws.onerror = () => toast('Connection error');
+}
+function wsend(o) { if (ws && ws.readyState === 1) ws.send(JSON.stringify(o)); }
+
+async function handle(m) {
+  switch (m.type) {
+    case 'created':
+      room = m.room;
+      document.getElementById('linkBox').textContent = BASE + '?r=' + room;
+      if (m.ttl > 0) document.getElementById('linkTtl').textContent = 'Self-destructs in ' + fmtTime(m.ttl);
+      show('link');
+      break;
+    case 'joined':
+      if (m.ttl > 0) startTimer(m.ttl - (m.elapsed || 0));
+      addMsg('Connected. Exchanging keys...', 'sys');
+      await sendPub();
+      break;
+    case 'peer_joined':
+      addMsg('Peer connected. Exchanging keys...', 'sys');
+      await sendPub();
+      break;
+    case 'key':
+      peerPub = await importPub(m.pub);
+      await derive(peerPub);
+      connected = true;
+      show('chat');
+      setStatus(true);
+      addMsg('Encrypted connection established.', 'sys');
+      if (ttlTotal > 0) addMsg('Self-destructs in ' + fmtTime(ttlRemaining), 'sys');
+      break;
+    case 'msg':
+      try { addMsg(escHtml(await dec(m.iv, m.ct)), 'r'); } catch { addMsg('Decryption failed.', 'sys'); }
+      break;
+    case 'voice':
+      try {
+        const buf = await decBuf(m.iv, m.ct);
+        const url = URL.createObjectURL(new Blob([buf], { type: 'audio/webm;codecs=opus' }));
+        addMsg('<audio controls src="' + url + '"></audio>', 'r');
+      } catch { addMsg('Voice decryption failed.', 'sys'); }
+      break;
+    case 'peer_left':
+      connected = false; setStatus(false);
+      addMsg('Peer disconnected.', 'sys');
+      break;
+    case 'destroyed':
+      selfDestruct();
+      break;
+    case 'error':
+      if (m.msg === 'not_found') toast('Room not found');
+      else if (m.msg === 'full') toast('Room is full');
+      break;
+  }
+}
+
+async function sendPub() { wsend({ type: 'key', pub: await exportPub() }); }
+function setStatus(on) {
+  document.getElementById('stDot').className = 'stdot' + (on ? '' : ' off');
+  document.getElementById('stTxt').textContent = on ? 'Connected' : 'Disconnected';
+}
+
+// ── ACTIONS ──
+function showCreate() { document.getElementById('createModal').classList.add('on'); }
+function hideCreate() { document.getElementById('createModal').classList.remove('on'); }
+async function create() {
+  const ttl = parseInt(document.getElementById('ttlSelect').value);
+  hideCreate();
+  await genKeys();
+  connect(() => wsend({ type: 'create', ttl }));
+  if (ttl > 0) startTimer(ttl);
+}
+
+async function joinRoom(roomId) {
+  room = roomId;
+  await genKeys();
+  connect(() => wsend({ type: 'join', room }));
+  show('chat');
+}
+
+async function send() {
+  const inp = document.getElementById('msgIn'), text = inp.value.trim();
+  if (!text || !connected || !derivedKey) return;
+  if (new TextEncoder().encode(text).length > PAD_TEXT - 4) { toast('Message too long'); return; }
+  inp.value = '';
+  const { iv, ct } = await enc(text);
+  wsend({ type: 'msg', iv, ct });
+  addMsg(escHtml(text), 's');
+}
+
+function copyLink() { navigator.clipboard.writeText(BASE + '?r=' + room).then(() => toast('Copied')); }
+function shareLink() { if (navigator.share) navigator.share({ title: 'Arnon', url: BASE + '?r=' + room }).catch(() => {}); else copyLink(); }
+function endChat() { destroy(); show('ended'); }
+
+function destroy() {
+  connected = false; derivedKey = null; myKeys = null; peerPub = null;
+  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+  if (ws) { ws.close(); ws = null; }
+  document.getElementById('msgs').innerHTML = '';
+}
+
+// ── VOICE ──
+let recorder = null, chunks = [], recording = false, recTimeout = null;
+async function toggleRec() {
+  if (recording) return stopRec();
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    recorder = new MediaRecorder(stream, { mimeType: 'audio/webm;codecs=opus' });
+    chunks = [];
+    recorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+    recorder.onstop = async () => {
+      stream.getTracks().forEach(t => t.stop());
+      recording = false; document.getElementById('micBtn').classList.remove('rec'); clearTimeout(recTimeout);
+      if (!chunks.length || !connected || !derivedKey) return;
+      const blob = new Blob(chunks, { type: 'audio/webm;codecs=opus' });
+      const buf = await blob.arrayBuffer();
+      if (buf.byteLength > PAD_VOICE - 4) { toast('Voice note too long'); return; }
+      const { iv, ct } = await encBuf(buf);
+      wsend({ type: 'voice', iv, ct });
+      addMsg('<audio controls src="' + URL.createObjectURL(blob) + '"></audio>', 's');
+    };
+    recorder.start(); recording = true;
+    document.getElementById('micBtn').classList.add('rec');
+    recTimeout = setTimeout(() => { if (recording) stopRec(); }, 30000);
+
+  } catch { toast('Microphone access denied'); }
+}
+function stopRec() { if (recorder && recorder.state === 'recording') recorder.stop(); }
+
+// ── AUTO JOIN + DESTROY ON CLOSE ──
+window.addEventListener('DOMContentLoaded', () => {
+  const r = new URLSearchParams(location.search).get('r');
+  if (r) joinRoom(r);
+});
+window.addEventListener('beforeunload', destroy);
+window.addEventListener('pagehide', destroy);
+</script>
+</body>
+</html>

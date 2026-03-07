@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta property="og:title" content="Arnon — You Are None">
+<meta property="og:description" content="Encrypted conversations that leave no trace. No download. No account. No history.">
+<meta property="og:url" content="https://arnon.app">
+<meta property="og:type" content="website">
+<link rel="icon" href="/pwa/icon-192.png" type="image/png">
+<meta name="description" content="Arnon — Encrypted conversations that leave no trace. No account. No download. No history.">
+<title>Arnon — You Are None</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro',sans-serif;background:#0a0a0a;color:#fff}
+a{color:#eee;text-decoration:none}
+a:focus-visible{outline:2px solid #eee;outline-offset:2px}
+
+nav{display:flex;justify-content:space-between;align-items:center;padding:16px 32px;max-width:1100px;margin:0 auto}
+nav .nl{font-size:20px;font-weight:800;letter-spacing:-1px;color:#eee}
+nav .nr{display:flex;gap:24px;align-items:center}
+nav .nr a{color:#777;font-size:13px;transition:color 0.2s}
+nav .nr a:hover{color:#fff}
+nav .go{background:#eee;color:#0a0a0a!important;padding:8px 20px;border-radius:8px;font-weight:600;font-size:14px}
+nav .go:hover{background:#ccc}
+nav .go:focus-visible{outline:2px solid #eee;outline-offset:2px}
+.hero-btn:focus-visible{outline:2px solid #eee;outline-offset:2px}
+
+.hero{text-align:center;padding:100px 24px 80px}
+.hero-logo{font-size:clamp(64px,15vw,96px);font-weight:800;letter-spacing:-3px;color:#eee}
+.hero-tag{font-size:18px;color:#666;margin:8px 0 32px;font-style:italic}
+.hero-desc{max-width:500px;margin:0 auto 40px;font-size:17px;line-height:1.7;color:#888}
+.hero-btn{display:inline-block;padding:16px 40px;background:#eee;color:#0a0a0a;border-radius:12px;font-size:18px;font-weight:600;transition:all 0.2s}
+.hero-btn:hover{background:#ccc;transform:translateY(-1px)}
+.hero-note{font-size:13px;color:#777;margin-top:16px}
+.hero-note a{color:#fff;text-decoration:underline;text-underline-offset:3px}
+
+.demo{max-width:700px;margin:0 auto;padding:40px 24px 80px}
+.demo-box{background:#111;border:1px solid #222;border-radius:16px;overflow:hidden;padding:24px}
+.demo-flow{display:flex;align-items:center;justify-content:center;gap:20px;flex-wrap:wrap}
+.demo-step{text-align:center;padding:16px}
+.demo-num{width:40px;height:40px;border-radius:50%;background:#1a1a1a;border:1px solid #333;display:inline-flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#eee;margin-bottom:10px}
+.demo-step h4{font-size:14px;margin-bottom:4px}
+.demo-step p{font-size:12px;color:#666}
+.demo-arrow{font-size:20px;color:#333}
+
+.divider{height:1px;background:#151515;max-width:800px;margin:0 auto}
+
+.features{display:grid;grid-template-columns:repeat(2,1fr);max-width:900px;margin:0 auto;padding:64px 24px;gap:40px}
+.feature{padding-left:20px;border-left:2px solid #333}
+.feature h3{font-size:16px;font-weight:600;margin-bottom:6px;color:#ddd}
+.feature p{color:#666;font-size:14px;line-height:1.6}
+
+.comp-table{width:100%;border-collapse:collapse;font-size:14px}
+.comp-table th{text-align:left;padding:12px;color:#666;font-weight:400;border-bottom:1px solid #1a1a1a}
+.comp-table th[scope="row"]{color:#888;font-weight:400}
+.comp-table td{padding:12px;border-bottom:1px solid #111}
+.comp-table .yes{color:#30d158}.comp-table .no{color:#ff453a}.comp-table .maybe{color:#ff9f0a}
+
+footer{text-align:center;padding:40px 24px;border-top:1px solid #111;color:#333;font-size:12px}
+footer a{color:#444}footer a:hover{color:#777}
+
+@media(max-width:700px){
+  nav{padding:12px 20px}
+  .hero{padding:60px 20px 60px}
+  .demo-flow{flex-direction:column}
+  .demo-arrow{transform:rotate(90deg)}
+  .features{grid-template-columns:1fr}
+}
+@media(prefers-color-scheme:light){
+  body{background:#fff;color:#111}
+  nav .nl{color:#111}
+  nav .nr a{color:#999}
+  nav .go{background:#111;color:#fff!important}
+  nav .go:hover{background:#333}
+  .hero-logo{color:#111}
+  .hero-tag{color:#999}.hero-desc{color:#666}
+  .hero-btn{background:#111;color:#fff}
+  .hero-btn:hover{background:#333}
+  .demo-box{background:#f8f8f8;border-color:#eee}
+  .demo-num{background:#f0f0f0;border-color:#ddd;color:#111}
+  .demo-arrow{color:#ccc}
+  .demo-step p{color:#999}
+  .divider{background:#eee}
+  .feature{border-color:#ddd}.feature h3{color:#222}.feature p{color:#777}
+  .comp-table th{color:#999;border-color:#eee}.comp-table th[scope="row"]{color:#555}.comp-table td{border-color:#f5f5f5;color:#555}
+  footer{border-color:#eee;color:#bbb}footer a{color:#999}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nl">arnon</div>
+  <div class="nr">
+    <a href="#how">How it works</a>
+    <a href="https://github.com/atas2390/arnon">GitHub</a>
+    <a href="/pwa/app.html" class="go">Start chatting</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-logo">arnon</div>
+  <div class="hero-tag">You are none.</div>
+  <p class="hero-desc">
+    Send a link. Exchange encrypted texts and voice notes. Close the tab — gone.
+    No app to install. No account to create. No trace left behind.
+    For sources, tips, one-time deals, or conversations that shouldn't exist.
+  </p>
+  <a href="/pwa/app.html" class="hero-btn">Start a conversation</a>
+  <p class="hero-note">Works in any browser. Nothing to install.</p>
+</section>
+
+<div class="demo" id="how">
+  <div class="demo-box">
+    <div class="demo-flow">
+      <div class="demo-step">
+        <div class="demo-num">1</div>
+        <h4>Start</h4>
+        <p>Tap "New conversation"<br>Get a link</p>
+      </div>
+      <div class="demo-arrow" aria-hidden="true">→</div>
+      <div class="demo-step">
+        <div class="demo-num">2</div>
+        <h4>Share</h4>
+        <p>Send the link<br>by any channel</p>
+      </div>
+      <div class="demo-arrow" aria-hidden="true">→</div>
+      <div class="demo-step">
+        <div class="demo-num">3</div>
+        <h4>Chat</h4>
+        <p>They open it<br>Instant encrypted chat</p>
+      </div>
+      <div class="demo-arrow" aria-hidden="true">→</div>
+      <div class="demo-step">
+        <div class="demo-num">4</div>
+        <h4>Gone</h4>
+        <p>Close the tab<br>Zero trace</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<section class="features" aria-label="Features">
+  <div class="feature">
+    <h3>End-to-end encrypted</h3>
+    <p>ECDH key exchange with AES-256-GCM. Every conversation generates fresh keys. Runs entirely in your browser via Web Crypto API.</p>
+  </div>
+  <div class="feature">
+    <h3>No trace</h3>
+    <p>Close the tab and everything is destroyed. Keys, messages, identity — all gone. Nothing saved anywhere.</p>
+  </div>
+  <div class="feature">
+    <h3>No account</h3>
+    <p>No phone number. No email. No registration. No identity. You're nobody — by design.</p>
+  </div>
+  <div class="feature">
+    <h3>No download</h3>
+    <p>Works in any browser. Phone, laptop, tablet. Nothing to install. Send a link, start chatting.</p>
+  </div>
+  <div class="feature">
+    <h3>Text &amp; voice</h3>
+    <p>Send text messages and voice notes up to 30 seconds. Everything encrypted end-to-end. Nothing stored.</p>
+  </div>
+  <div class="feature">
+    <h3>Self-destruct</h3>
+    <p>Set a timer when you create a conversation. When time's up, the room is destroyed on both sides — even if nobody closes the tab.</p>
+  </div>
+  <div class="feature">
+    <h3>Traffic-analysis resistant</h3>
+    <p>All messages are padded to fixed sizes — text to 4 KB, voice to 128 KB. The relay can't tell a short message from a long one.</p>
+  </div>
+  <div class="feature">
+    <h3>Open source</h3>
+    <p>Every line of code is on GitHub. The crypto runs in your browser. Verify it yourself.</p>
+  </div>
+  <div class="feature">
+    <h3>Blind relay</h3>
+    <p>Messages pass through a relay that sees only encrypted blobs of identical size. No accounts, no logs, nothing to hand over — even if asked.</p>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section style="max-width:800px;margin:0 auto;padding:48px 24px 64px">
+  <h2 style="text-align:center;font-size:22px;font-weight:600;margin-bottom:24px">Why not just use...?</h2>
+  <div style="overflow-x:auto">
+  <table class="comp-table" role="table" aria-label="Feature comparison">
+    <tr><th scope="col"></th><th scope="col">Arnon</th><th scope="col">Signal</th><th scope="col">Session</th><th scope="col">ChatCrypt</th><th scope="col">Wire</th><th scope="col">Telegram</th></tr>
+    <tr><th scope="row">Works in browser</th><td class="yes">✓</td><td class="no">✗</td><td class="no">✗</td><td class="yes">✓</td><td class="yes">✓</td><td class="maybe">partial</td></tr>
+    <tr><th scope="row">No app to install</th><td class="yes">✓</td><td class="no">✗</td><td class="no">✗</td><td class="yes">✓</td><td class="no">✗</td><td class="no">✗</td></tr>
+    <tr><th scope="row">No phone number</th><td class="yes">✓</td><td class="no">✗</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">✗</td></tr>
+    <tr><th scope="row">No account</th><td class="yes">✓</td><td class="no">✗</td><td class="no">✗</td><td class="yes">✓</td><td class="no">✗</td><td class="no">✗</td></tr>
+    <tr><th scope="row">Nothing saved after close</th><td class="yes">✓</td><td class="no">✗</td><td class="no">✗</td><td class="yes">✓</td><td class="no">✗</td><td class="no">✗</td></tr>
+    <tr><th scope="row">Self-destruct timer</th><td class="yes">✓</td><td class="maybe">messages</td><td class="maybe">messages</td><td class="no">✗</td><td class="maybe">messages</td><td class="maybe">messages</td></tr>
+    <tr><th scope="row">Voice notes</th><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">✗</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+    <tr><th scope="row">Traffic-analysis resistant</th><td class="yes">padded</td><td class="no">✗</td><td class="no">✗</td><td class="no">✗</td><td class="no">✗</td><td class="no">✗</td></tr>
+    <tr><th scope="row">IPs hidden from peer</th><td class="yes">relay</td><td class="yes">server</td><td class="yes">onion</td><td class="no">P2P</td><td class="yes">server</td><td class="yes">server</td></tr>
+    <tr><th scope="row">No ads or tracking</th><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">Google</td><td class="yes">✓</td><td class="no">ads</td></tr>
+    <tr><th scope="row">End-to-end encrypted</th><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="maybe">opt-in</td></tr>
+    <tr><th scope="row">Open source</th><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">✗</td><td class="yes">✓</td><td class="maybe">partial</td></tr>
+  </table>
+  </div>
+</section>
+
+<section style="text-align:center;padding:64px 24px;border-top:1px solid #151515">
+  <a href="/pwa/app.html" class="hero-btn">Start a conversation</a>
+  <p class="hero-note" style="margin-top:16px">For maximum anonymity, use <a href="https://www.torproject.org/download/">Tor Browser</a>.</p>
+</section>
+
+<footer>
+  <a href="https://github.com/atas2390/arnon">GitHub</a> · <a href="https://github.com/atas2390/arnon/issues">Issues</a> · <a href="/accessibility.html">Accessibility</a> · Relay: Helsinki, EU · Built by Particular Ltd.
+</footer>
+
+</body>
+</html>
