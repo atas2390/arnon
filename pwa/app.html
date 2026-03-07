@@ -44,7 +44,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .ttl-badge{font-size:12px;color:var(--am);margin-top:4px}
 
 #chat{height:100%}
-.cht-hd{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--bd);background:var(--sf);flex-shrink:0}
+.cht-hd{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #333;background:#1a1a1a;flex-shrink:0}
 .cht-hd h3{font-size:15px;font-weight:600}
 .cht-st{font-size:11px;color:var(--t2);display:flex;align-items:center;gap:5px}
 .stdot{width:7px;height:7px;border-radius:50%;background:var(--gn)}.stdot.off{background:var(--rd)}
@@ -60,13 +60,13 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .m.sys{align-self:center;color:var(--t3);font-size:11px;padding:3px 0;background:none}
 .m audio{display:block;height:32px;width:180px;margin-top:4px}
 
-.inbar{display:flex;align-items:center;gap:8px;padding:10px 12px;border-top:1px solid var(--bd);background:var(--sf);flex-shrink:0}
-.inbar input{flex:1;padding:11px 14px;background:var(--bg);border:1px solid var(--bd);border-radius:20px;color:var(--t1);font-size:14px;outline:none}
-.inbar input:focus{border-color:var(--bl)}
+.inbar{display:flex;align-items:center;gap:8px;padding:10px 12px;border-top:1px solid #333;background:#1a1a1a;flex-shrink:0}
+.inbar input{flex:1;padding:11px 14px;background:#111;border:1px solid #444;border-radius:20px;color:var(--t1);font-size:14px;outline:none}
+.inbar input:focus{border-color:#666}
 .ibtn{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .bsend{background:var(--bl);color:#fff}
 .bsend:disabled{background:var(--bd);color:var(--t3)}
-.bmic{background:var(--sf);border:1px solid var(--bd);color:var(--t2)}
+.bmic{background:#1a1a1a;border:1px solid #444;color:#aaa}
 .bmic.rec{background:var(--rd);border-color:var(--rd);color:#fff;animation:rp 1s infinite}
 @keyframes rp{0%,100%{opacity:1}50%{opacity:.5}}
 
@@ -162,12 +162,14 @@ async function derive(pub) { derivedKey = await crypto.subtle.deriveKey({ name: 
 const PAD_TEXT = 4096;
 const PAD_VOICE = 131072;
 function pad(data, size) {
-  // [4 bytes real length][real data][random padding]
-  const len = data.byteLength || data.length;
+  const bytes = data instanceof ArrayBuffer ? new Uint8Array(data) :
+                data instanceof Uint8Array ? data :
+                new TextEncoder().encode(data);
+  const len = bytes.byteLength;
   const buf = new Uint8Array(size);
-  crypto.getRandomValues(buf); // fill with random so padding is indistinguishable
+  crypto.getRandomValues(buf);
   new DataView(buf.buffer).setUint32(0, len);
-  buf.set(new Uint8Array(data instanceof ArrayBuffer ? data : new TextEncoder().encode(data)), 4);
+  buf.set(bytes, 4);
   return buf;
 }
 function unpad(buf) {
@@ -262,7 +264,8 @@ async function handle(m) {
     case 'voice':
       try {
         const buf = await decBuf(m.iv, m.ct);
-        const url = URL.createObjectURL(new Blob([buf], { type: 'audio/webm;codecs=opus' }));
+        const vmime = m.mime || 'audio/webm;codecs=opus';
+        const url = URL.createObjectURL(new Blob([buf], { type: vmime }));
         addMsg('<audio controls src="' + url + '"></audio>', 'r');
       } catch { addMsg('Voice decryption failed.', 'sys'); }
       break;
@@ -327,28 +330,35 @@ function destroy() {
 
 // ── VOICE ──
 let recorder = null, chunks = [], recording = false, recTimeout = null;
+function getAudioMime() {
+  if (typeof MediaRecorder === 'undefined') return null;
+  const types = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg;codecs=opus'];
+  for (const t of types) if (MediaRecorder.isTypeSupported(t)) return t;
+  return null;
+}
 async function toggleRec() {
   if (recording) return stopRec();
+  const mime = getAudioMime();
+  if (!mime) { toast('Voice notes not supported in this browser'); return; }
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    recorder = new MediaRecorder(stream, { mimeType: 'audio/webm;codecs=opus' });
+    recorder = new MediaRecorder(stream, { mimeType: mime });
     chunks = [];
     recorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
     recorder.onstop = async () => {
       stream.getTracks().forEach(t => t.stop());
       recording = false; document.getElementById('micBtn').classList.remove('rec'); clearTimeout(recTimeout);
       if (!chunks.length || !connected || !derivedKey) return;
-      const blob = new Blob(chunks, { type: 'audio/webm;codecs=opus' });
+      const blob = new Blob(chunks, { type: mime });
       const buf = await blob.arrayBuffer();
       if (buf.byteLength > PAD_VOICE - 4) { toast('Voice note too long'); return; }
       const { iv, ct } = await encBuf(buf);
-      wsend({ type: 'voice', iv, ct });
+      wsend({ type: 'voice', iv, ct, mime });
       addMsg('<audio controls src="' + URL.createObjectURL(blob) + '"></audio>', 's');
     };
     recorder.start(); recording = true;
     document.getElementById('micBtn').classList.add('rec');
     recTimeout = setTimeout(() => { if (recording) stopRec(); }, 30000);
-
   } catch { toast('Microphone access denied'); }
 }
 function stopRec() { if (recorder && recorder.state === 'recording') recorder.stop(); }
