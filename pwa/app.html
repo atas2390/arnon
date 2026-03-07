@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <title>Arnon</title>
 <style>
 :root{--bg:#0a0a0a;--sf:#141414;--bd:#222;--t1:#eee;--t2:#888;--t3:#555;--bl:#3b82f6;--gn:#22c55e;--rd:#ef4444;--am:#f59e0b}
@@ -167,7 +167,11 @@ function pad(data, size) {
                 new TextEncoder().encode(data);
   const len = bytes.byteLength;
   const buf = new Uint8Array(size);
-  crypto.getRandomValues(buf);
+  // crypto.getRandomValues limited to 65536 bytes per call
+  for (let i = 0; i < size; i += 65536) {
+    const chunk = Math.min(65536, size - i);
+    crypto.getRandomValues(new Uint8Array(buf.buffer, i, chunk));
+  }
   new DataView(buf.buffer).setUint32(0, len);
   buf.set(bytes, 4);
   return buf;
