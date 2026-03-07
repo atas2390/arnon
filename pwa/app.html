@@ -160,9 +160,13 @@ async function derive(pub) { derivedKey = await crypto.subtle.deriveKey({ name: 
 
 // base64 helpers that work with large buffers
 function toB64(uint8) {
-  var s = '';
-  for (var i = 0; i < uint8.length; i++) s += String.fromCharCode(uint8[i]);
-  return btoa(s);
+  var binary = '';
+  var len = uint8.byteLength;
+  for (var i = 0; i < len; i += 8192) {
+    var slice = uint8.subarray(i, Math.min(i + 8192, len));
+    binary += String.fromCharCode.apply(null, slice);
+  }
+  return btoa(binary);
 }
 function fromB64(b64) { return Uint8Array.from(atob(b64), function(c) { return c.charCodeAt(0); }); }
 
