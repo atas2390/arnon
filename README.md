@@ -7,6 +7,7 @@ Encrypted conversations that leave no trace. No download. No account. No history
 ```
 arnon/
 ├── index.html          # Landing page (GitHub Pages)
+├── accessibility.html  # Accessibility statement
 ├── pwa/
 │   └── app.html        # The entire app — single file
 └── relay/
@@ -39,7 +40,7 @@ arnon/
 
 - **Crypto**: ECDH P-256 key exchange → AES-256-GCM (Web Crypto API, no WASM)
 - **Padding**: Text → 4 KB, Voice → 128 KB (resistant to traffic analysis)
-- **Relay**: Forwards encrypted blobs. Sees nothing. No accounts, no logs.
+- **Relay**: Forwards encrypted blobs in memory only — nothing written to disk. No accounts, no logs. Hosted in Helsinki, EU (GDPR).
 - **Storage**: None. Everything in memory. Close tab = destroyed.
 - **Voice**: MediaRecorder → padded → encrypted → relay → decrypted → unpadded → audio element
 - **Self-destruct**: Timer runs on relay + both clients. Room destroyed when time is up.
