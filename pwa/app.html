@@ -67,7 +67,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .inbar{display:flex;align-items:center;gap:10px;padding:12px 16px;border-top:1px solid var(--bd);background:var(--sf);flex-shrink:0}
 .inbar input{flex:1;padding:14px 18px;background:var(--bg);border:1px solid var(--bd);border-radius:24px;color:var(--t1);font-size:16px;outline:none}
 .inbar input:focus{border-color:#555}
-.ibtn{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ibtn{width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .bsend{background:var(--bl);color:#fff}
 .bsend:disabled{background:var(--bd);color:var(--t3)}
 .bmic{background:var(--bg);border:1px solid var(--bd);color:var(--t2)}
@@ -129,9 +129,9 @@ button:focus-visible,.hbtn:focus-visible,.ibtn:focus-visible,.bend:focus-visible
   </div>
   <div class="msgs" id="msgs" aria-live="polite" role="log"></div>
   <div class="inbar">
-    <button class="ibtn bmic" id="micBtn" aria-label="Record voice note" onclick="toggleRec()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></button>
+    <button class="ibtn bmic" id="micBtn" aria-label="Record voice note" onclick="toggleRec()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></button>
     <input id="msgIn" placeholder="Message" aria-label="Type a message" onkeydown="if(event.key==='Enter')send()">
-    <button class="ibtn bsend" aria-label="Send message" onclick="send()"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
+    <button class="ibtn bsend" aria-label="Send message" onclick="send()"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
   </div>
 </div>
 
@@ -148,7 +148,7 @@ var RELAY = 'wss://relay.arnon.app/ws';
 var BASE = 'https://arnon.app/pwa/app.html';
 var ws, room, myKeys, derivedKey, peerPub, connected = false;
 var ttlTotal = 0, ttlRemaining = 0, timerInterval = null;
-var pendingTtl = 0;
+var pendingTtl = 0, roomCreatedAt = 0;
 
 // ── UTIL ──
 function show(id) { document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('on'); }); document.getElementById(id).classList.add('on'); }
@@ -256,11 +256,15 @@ async function handle(m) {
       if (m.ttl > 0) {
         document.getElementById('linkTtl').textContent = 'Self-destructs in ' + fmtTime(m.ttl);
         pendingTtl = m.ttl;
+        roomCreatedAt = Date.now();
       }
       show('link');
       break;
     case 'joined':
-      if (m.ttl > 0) pendingTtl = m.ttl - (m.elapsed || 0);
+      if (m.ttl > 0) {
+        pendingTtl = m.ttl - (m.elapsed || 0);
+        roomCreatedAt = Date.now();
+      }
       addMsg('Connected. Exchanging keys...', 'sys');
       await sendPub();
       break;
@@ -277,8 +281,10 @@ async function handle(m) {
       addMsg('Encrypted connection established.', 'sys');
       // start timer only now — both sides synced
       if (pendingTtl > 0) {
-        startTimer(pendingTtl);
-        addMsg('Self-destructs in ' + fmtTime(pendingTtl), 'sys');
+        var elapsed = Math.floor((Date.now() - roomCreatedAt) / 1000);
+        var remaining = Math.max(1, pendingTtl - elapsed);
+        startTimer(remaining);
+        addMsg('Self-destructs in ' + fmtTime(remaining), 'sys');
       }
       break;
     case 'msg':
@@ -346,7 +352,7 @@ function shareLink() { if (navigator.share) navigator.share({ title: 'Arnon', ur
 function endChat() { destroy(); show('ended'); }
 
 function destroy() {
-  connected = false; derivedKey = null; myKeys = null; peerPub = null; pendingTtl = 0;
+  connected = false; derivedKey = null; myKeys = null; peerPub = null; pendingTtl = 0; roomCreatedAt = 0;
   if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
   if (ws) { ws.close(); ws = null; }
   document.getElementById('msgs').innerHTML = '';
