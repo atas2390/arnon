@@ -220,7 +220,11 @@ function selfDestruct() { destroy(); show('ended'); document.querySelector('#end
 function connect(onOpen) {
   ws = new WebSocket(RELAY);
   ws.onopen = onOpen;
-  ws.onmessage = e => handle(JSON.parse(e.data));
+  ws.onmessage = async (e) => {
+    let raw = e.data;
+    if (raw instanceof Blob) raw = await raw.text();
+    try { handle(JSON.parse(raw)); } catch {}
+  };
   ws.onclose = () => { if (connected) { connected = false; setStatus(false); } };
   ws.onerror = () => toast('Connection error');
 }
