@@ -166,52 +166,27 @@ async function derive(pub) { derivedKey = await crypto.subtle.deriveKey({ name: 
 function toB64(uint8) { var s = ''; for (var i = 0; i < uint8.length; i++) s += String.fromCharCode(uint8[i]); return btoa(s); }
 function fromB64(b64) { var s = atob(b64), a = new Uint8Array(s.length); for (var i = 0; i < s.length; i++) a[i] = s.charCodeAt(i); return a; }
 
-// ── PADDING ──
-var PAD_TEXT = 4096;
-var PAD_VOICE = 524288;
-
-function pad(data, size) {
-  var bytes;
-  if (data instanceof ArrayBuffer) bytes = new Uint8Array(data);
-  else if (data instanceof Uint8Array) bytes = data;
-  else bytes = new TextEncoder().encode(data);
-  var buf = new Uint8Array(size);
-  for (var i = 0; i < size; i += 65536) {
-    crypto.getRandomValues(new Uint8Array(buf.buffer, i, Math.min(65536, size - i)));
-  }
-  new DataView(buf.buffer).setUint32(0, bytes.byteLength);
-  buf.set(bytes, 4);
-  return buf;
-}
-
-function unpad(buf) {
-  var dv = new DataView(buf instanceof ArrayBuffer ? buf : buf.buffer);
-  var len = dv.getUint32(0);
-  return (buf instanceof ArrayBuffer ? buf : buf.buffer).slice(4, 4 + len);
-}
-
+// ── ENCRYPT/DECRYPT ──
 async function enc(plaintext) {
   var iv = crypto.getRandomValues(new Uint8Array(12));
-  var padded = pad(new TextEncoder().encode(plaintext), PAD_TEXT);
-  var ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, derivedKey, padded);
+  var ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, derivedKey, new TextEncoder().encode(plaintext));
   return { iv: toB64(iv), ct: toB64(new Uint8Array(ct)) };
 }
 
 async function dec(iv64, ct64) {
-  var padded = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: fromB64(iv64) }, derivedKey, fromB64(ct64));
-  return new TextDecoder().decode(unpad(padded));
+  var pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: fromB64(iv64) }, derivedKey, fromB64(ct64));
+  return new TextDecoder().decode(pt);
 }
 
 async function encBuf(data) {
   var iv = crypto.getRandomValues(new Uint8Array(12));
-  var padded = pad(data, PAD_VOICE);
-  var ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, derivedKey, padded);
+  var buf = data instanceof ArrayBuffer ? new Uint8Array(data) : data;
+  var ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, derivedKey, buf);
   return { iv: toB64(iv), ct: toB64(new Uint8Array(ct)) };
 }
 
 async function decBuf(iv64, ct64) {
-  var padded = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: fromB64(iv64) }, derivedKey, fromB64(ct64));
-  return unpad(padded);
+  return await crypto.subtle.decrypt({ name: 'AES-GCM', iv: fromB64(iv64) }, derivedKey, fromB64(ct64));
 }
 
 // ── TIMER — only starts when both sides are connected ──
@@ -340,7 +315,6 @@ async function joinRoom(roomId) {
 async function send() {
   var inp = document.getElementById('msgIn'), text = inp.value.trim();
   if (!text || !connected || !derivedKey) return;
-  if (new TextEncoder().encode(text).length > PAD_TEXT - 4) { toast('Message too long'); return; }
   inp.value = '';
   var e = await enc(text);
   wsend({ type: 'msg', iv: e.iv, ct: e.ct });
@@ -384,7 +358,6 @@ async function toggleRec() {
     var mime = recorder.mimeType || 'audio/webm';
     var blob = new Blob(chunks, { type: mime });
     var buf = await blob.arrayBuffer();
-    if (buf.byteLength > PAD_VOICE - 4) { toast('Too long (' + Math.round(buf.byteLength/1024) + 'KB)'); return; }
     try {
       var e = await encBuf(buf);
       wsend({ type: 'voice', iv: e.iv, ct: e.ct, mime: mime });
