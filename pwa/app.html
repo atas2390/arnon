@@ -154,55 +154,61 @@ function fmtTime(s) { const m = Math.floor(s / 60), sec = s % 60; return m + ':'
 
 // ── CRYPTO (Web Crypto API — ECDH + AES-GCM) ──
 async function genKeys() { myKeys = await crypto.subtle.generateKey({ name: 'ECDH', namedCurve: 'P-256' }, true, ['deriveKey']); }
-async function exportPub() { const r = await crypto.subtle.exportKey('raw', myKeys.publicKey); return btoa(String.fromCharCode(...new Uint8Array(r))); }
-async function importPub(b64) { const b = Uint8Array.from(atob(b64), c => c.charCodeAt(0)); return crypto.subtle.importKey('raw', b, { name: 'ECDH', namedCurve: 'P-256' }, false, []); }
+async function exportPub() { const r = await crypto.subtle.exportKey('raw', myKeys.publicKey); return toB64(new Uint8Array(r)); }
+async function importPub(b64) { return crypto.subtle.importKey('raw', fromB64(b64), { name: 'ECDH', namedCurve: 'P-256' }, false, []); }
 async function derive(pub) { derivedKey = await crypto.subtle.deriveKey({ name: 'ECDH', public: pub }, myKeys.privateKey, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']); }
 
-// ── PADDING — text→4KB, voice→100KB ──
+// base64 helpers that work with large buffers
+function toB64(uint8) {
+  var s = '';
+  for (var i = 0; i < uint8.length; i++) s += String.fromCharCode(uint8[i]);
+  return btoa(s);
+}
+function fromB64(b64) { return Uint8Array.from(atob(b64), function(c) { return c.charCodeAt(0); }); }
+
+// ── PADDING — text→4KB, voice→128KB ──
 const PAD_TEXT = 4096;
 const PAD_VOICE = 131072;
 function pad(data, size) {
-  const bytes = data instanceof ArrayBuffer ? new Uint8Array(data) :
-                data instanceof Uint8Array ? data :
-                new TextEncoder().encode(data);
-  const len = bytes.byteLength;
-  const buf = new Uint8Array(size);
-  // crypto.getRandomValues limited to 65536 bytes per call
-  for (let i = 0; i < size; i += 65536) {
-    const chunk = Math.min(65536, size - i);
-    crypto.getRandomValues(new Uint8Array(buf.buffer, i, chunk));
+  var bytes = data instanceof ArrayBuffer ? new Uint8Array(data) :
+              data instanceof Uint8Array ? data :
+              new TextEncoder().encode(data);
+  var len = bytes.byteLength;
+  var buf = new Uint8Array(size);
+  for (var i = 0; i < size; i += 65536) {
+    crypto.getRandomValues(new Uint8Array(buf.buffer, i, Math.min(65536, size - i)));
   }
   new DataView(buf.buffer).setUint32(0, len);
   buf.set(bytes, 4);
   return buf;
 }
 function unpad(buf) {
-  const len = new DataView(buf).getUint32(0);
+  var len = new DataView(buf).getUint32(0);
   return buf.slice(4, 4 + len);
 }
 
 async function enc(plaintext) {
-  const iv = crypto.getRandomValues(new Uint8Array(12));
-  const padded = pad(new TextEncoder().encode(plaintext), PAD_TEXT);
-  const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, derivedKey, padded);
-  return { iv: btoa(String.fromCharCode(...iv)), ct: btoa(String.fromCharCode(...new Uint8Array(ct))) };
+  var iv = crypto.getRandomValues(new Uint8Array(12));
+  var padded = pad(new TextEncoder().encode(plaintext), PAD_TEXT);
+  var ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, derivedKey, padded);
+  return { iv: toB64(iv), ct: toB64(new Uint8Array(ct)) };
 }
 async function dec(iv64, ct64) {
-  const iv = Uint8Array.from(atob(iv64), c => c.charCodeAt(0));
-  const ct = Uint8Array.from(atob(ct64), c => c.charCodeAt(0));
-  const padded = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, derivedKey, ct);
+  var iv = fromB64(iv64);
+  var ct = fromB64(ct64);
+  var padded = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: iv }, derivedKey, ct);
   return new TextDecoder().decode(unpad(padded));
 }
 async function encBuf(data) {
-  const iv = crypto.getRandomValues(new Uint8Array(12));
-  const padded = pad(data, PAD_VOICE);
-  const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, derivedKey, padded);
-  return { iv: btoa(String.fromCharCode(...iv)), ct: btoa(String.fromCharCode(...new Uint8Array(ct))) };
+  var iv = crypto.getRandomValues(new Uint8Array(12));
+  var padded = pad(data, PAD_VOICE);
+  var ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, derivedKey, padded);
+  return { iv: toB64(iv), ct: toB64(new Uint8Array(ct)) };
 }
 async function decBuf(iv64, ct64) {
-  const iv = Uint8Array.from(atob(iv64), c => c.charCodeAt(0));
-  const ct = Uint8Array.from(atob(ct64), c => c.charCodeAt(0));
-  return unpad(await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, derivedKey, ct));
+  var iv = fromB64(iv64);
+  var ct = fromB64(ct64);
+  return unpad(await crypto.subtle.decrypt({ name: 'AES-GCM', iv: iv }, derivedKey, ct));
 }
 
 // ── TIMER ──
