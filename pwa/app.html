@@ -57,7 +57,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 @keyframes mi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 .m.s{align-self:flex-end;background:var(--bl);color:#fff;border-bottom-right-radius:4px}
 .m.r{align-self:flex-start;background:var(--sf);border:1px solid var(--bd);border-bottom-left-radius:4px}
-.m.sys{align-self:center;color:var(--t3);font-size:11px;padding:3px 0;background:none}
+.m.sys{align-self:center;color:#aaa;font-size:11px;padding:3px 0;background:none}
 .m audio{display:block;height:32px;width:180px;margin-top:4px}
 
 .inbar{display:flex;align-items:center;gap:8px;padding:10px 12px;border-top:1px solid #333;background:#1a1a1a;flex-shrink:0}
@@ -334,32 +334,40 @@ function getAudioMime() {
   if (typeof MediaRecorder === 'undefined') return null;
   const types = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg;codecs=opus'];
   for (const t of types) if (MediaRecorder.isTypeSupported(t)) return t;
-  return null;
+  return '';
 }
 async function toggleRec() {
   if (recording) return stopRec();
   const mime = getAudioMime();
-  if (!mime) { toast('Voice notes not supported in this browser'); return; }
+  if (mime === null) { toast('Voice notes not supported'); return; }
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    recorder = new MediaRecorder(stream, { mimeType: mime });
+    const opts = mime ? { mimeType: mime } : {};
+    recorder = new MediaRecorder(stream, opts);
+    const usedMime = recorder.mimeType || mime || 'audio/mp4';
     chunks = [];
-    recorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+    recorder.ondataavailable = e => { if (e.data && e.data.size > 0) chunks.push(e.data); };
+    recorder.onerror = () => { toast('Recording error'); stopRec(); };
     recorder.onstop = async () => {
       stream.getTracks().forEach(t => t.stop());
-      recording = false; document.getElementById('micBtn').classList.remove('rec'); clearTimeout(recTimeout);
+      recording = false;
+      document.getElementById('micBtn').classList.remove('rec');
+      clearTimeout(recTimeout);
       if (!chunks.length || !connected || !derivedKey) return;
-      const blob = new Blob(chunks, { type: mime });
-      const buf = await blob.arrayBuffer();
-      if (buf.byteLength > PAD_VOICE - 4) { toast('Voice note too long'); return; }
-      const { iv, ct } = await encBuf(buf);
-      wsend({ type: 'voice', iv, ct, mime });
-      addMsg('<audio controls src="' + URL.createObjectURL(blob) + '"></audio>', 's');
+      try {
+        const blob = new Blob(chunks, { type: usedMime });
+        const buf = await blob.arrayBuffer();
+        if (buf.byteLength > PAD_VOICE - 4) { toast('Voice note too long'); return; }
+        const { iv, ct } = await encBuf(buf);
+        wsend({ type: 'voice', iv, ct, mime: usedMime });
+        addMsg('<audio controls src="' + URL.createObjectURL(blob) + '"></audio>', 's');
+      } catch (err) { toast('Voice send failed'); }
     };
-    recorder.start(); recording = true;
+    recorder.start(1000);
+    recording = true;
     document.getElementById('micBtn').classList.add('rec');
     recTimeout = setTimeout(() => { if (recording) stopRec(); }, 30000);
-  } catch { toast('Microphone access denied'); }
+  } catch (err) { toast('Microphone access denied'); }
 }
 function stopRec() { if (recorder && recorder.state === 'recording') recorder.stop(); }
 
