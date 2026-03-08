@@ -25,23 +25,25 @@ arnon/
 ## Features
 
 - End-to-end encrypted (ECDH P-256 + AES-256-GCM, Web Crypto API)
-- Text messages + voice notes (30s max)
+- Text messages + voice notes (30s max) — no photos, videos, or file sharing, by design
 - Self-destruct timer (5min / 15min / 30min / 1hr) — destroys the entire room
 - No account, no phone number, no email
 - No download — works in any browser
 - Close tab = everything destroyed (keys, messages, identity)
-- Blind relay — sees only encrypted blobs, no logs, nothing to hand over
+- Blind relay — sees only encrypted blobs in memory, nothing written to disk, nothing to hand over
+- Relay hardened — runs as dedicated non-root user, rate limiting (5 rooms/IP), 1MB message size limit, 24-char room IDs
 - Accessible — aria labels, keyboard navigation, screen reader support
 - Responsive — works on phone, tablet, desktop
 - Tor Browser compatible
+- Free forever — no company, no investors, no monetization plan
 
 ## Architecture
 
 - **Crypto**: ECDH P-256 key exchange → AES-256-GCM (Web Crypto API, no WASM)
-- **Relay**: Forwards encrypted blobs in memory only — nothing written to disk. No accounts, no logs. Hosted in Helsinki, EU (GDPR).
+- **Relay**: Forwards encrypted blobs in memory only — nothing written to disk. No accounts, no logs. Runs as dedicated user. Hosted in Helsinki, EU (GDPR).
 - **Storage**: None. Everything in memory. Close tab = destroyed.
 - **Voice**: MediaRecorder → encrypted → relay → decrypted → audio element
-- **Self-destruct**: Timer runs on relay + both clients. Room destroyed when time is up.
+- **Self-destruct**: Timer synced from relay on key exchange. Room destroyed server-side when time is up.
 
 ## Privacy
 
@@ -57,7 +59,10 @@ For full IP anonymity, use Tor Browser.
 
 ```bash
 # Relay (on VPS)
-cd relay && npm install && node server.js --port 9444
+useradd -r -s /usr/sbin/nologin arnon
+cd relay && npm install
+# Run as dedicated user via systemd (see arnon-relay.service)
+node server.js --port 9444
 
 # Landing page + PWA — host on GitHub Pages
 # Update RELAY and BASE constants in pwa/app.html to match your domain
