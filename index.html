@@ -15,15 +15,6 @@
 body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro',sans-serif;background:#0a0a0a;color:#fff}
 a{color:#eee;text-decoration:none}
 a:focus-visible{outline:2px solid #eee;outline-offset:2px}
-
-nav{display:flex;justify-content:space-between;align-items:center;padding:16px 32px;max-width:1100px;margin:0 auto}
-nav .nl{font-size:20px;font-weight:800;letter-spacing:-1px;color:#eee}
-nav .nr{display:flex;gap:24px;align-items:center}
-nav .nr a{color:#777;font-size:13px;transition:color 0.2s}
-nav .nr a:hover{color:#fff}
-nav .go{background:#eee;color:#0a0a0a!important;padding:8px 20px;border-radius:8px;font-weight:600;font-size:14px}
-nav .go:hover{background:#ccc}
-nav .go:focus-visible{outline:2px solid #eee;outline-offset:2px}
 .hero-btn:focus-visible{outline:2px solid #eee;outline-offset:2px}
 
 .hero{text-align:center;padding:100px 24px 80px}
@@ -61,7 +52,6 @@ footer{text-align:center;padding:40px 24px;border-top:1px solid #222;color:#777;
 footer a{color:#999}footer a:hover{color:#fff}
 
 @media(max-width:700px){
-  nav{padding:12px 20px}
   .hero{padding:60px 20px 60px}
   .demo-flow{flex-direction:column}
   .demo-arrow{transform:rotate(90deg)}
@@ -70,10 +60,6 @@ footer a{color:#999}footer a:hover{color:#fff}
 @media(prefers-color-scheme:light){
   body{background:#fff;color:#111}
   a{color:#111}
-  nav .nl{color:#111}
-  nav .nr a{color:#999}
-  nav .go{background:#111;color:#fff!important}
-  nav .go:hover{background:#333}
   .hero-logo{color:#111}
   .hero-tag{color:#999}.hero-desc{color:#666}
   .hero-btn{background:#111;color:#fff}
@@ -89,21 +75,13 @@ footer a{color:#999}footer a:hover{color:#fff}
   .hero-note a{color:#111}
   a:focus-visible{outline-color:#111}
   .hero-btn:focus-visible{outline-color:#111}
-  nav .go:focus-visible{outline-color:#111}
   footer{border-color:#eee;color:#999}footer a{color:#555}footer a:hover{color:#111}
 }
 </style>
 </head>
 <body>
 
-<nav>
-  <div class="nl">arnon</div>
-  <div class="nr">
-    <a href="#how">How it works</a>
-    <a href="https://github.com/atas2390/arnon">GitHub</a>
-    <a href="/pwa/app.html" class="go">Start chatting</a>
-  </div>
-</nav>
+
 
 <section class="hero">
   <div class="hero-logo">arnon</div>
