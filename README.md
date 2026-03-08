@@ -27,7 +27,6 @@ arnon/
 - End-to-end encrypted (ECDH P-256 + AES-256-GCM, Web Crypto API)
 - Text messages + voice notes (30s max)
 - Self-destruct timer (5min / 15min / 30min / 1hr) — destroys the entire room
-- Padding: text padded to 4 KB, voice to 128 KB — all messages of the same type look identical on the wire
 - No account, no phone number, no email
 - No download — works in any browser
 - Close tab = everything destroyed (keys, messages, identity)
@@ -39,10 +38,9 @@ arnon/
 ## Architecture
 
 - **Crypto**: ECDH P-256 key exchange → AES-256-GCM (Web Crypto API, no WASM)
-- **Padding**: Text → 4 KB, Voice → 128 KB (resistant to traffic analysis)
 - **Relay**: Forwards encrypted blobs in memory only — nothing written to disk. No accounts, no logs. Hosted in Helsinki, EU (GDPR).
 - **Storage**: None. Everything in memory. Close tab = destroyed.
-- **Voice**: MediaRecorder → padded → encrypted → relay → decrypted → unpadded → audio element
+- **Voice**: MediaRecorder → encrypted → relay → decrypted → audio element
 - **Self-destruct**: Timer runs on relay + both clients. Room destroyed when time is up.
 
 ## Privacy
@@ -52,7 +50,6 @@ arnon/
 | An IP connected           | Who you are                 |
 | A blob was stored         | What's in the blob          |
 | A blob was picked up      | Who sent it or who it's for |
-| All blobs are same size   | Whether it's text or voice  |
 
 For full IP anonymity, use Tor Browser.
 
