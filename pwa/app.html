@@ -244,6 +244,10 @@ async function handle(m) {
       await sendPub();
       break;
     case 'peer_joined':
+      if (m.ttl > 0) {
+        pendingTtl = m.ttl - (m.elapsed || 0);
+        roomCreatedAt = Date.now();
+      }
       addMsg('Peer connected. Exchanging keys...', 'sys');
       await sendPub();
       break;
@@ -259,7 +263,6 @@ async function handle(m) {
         var elapsed = Math.floor((Date.now() - roomCreatedAt) / 1000);
         var remaining = Math.max(1, pendingTtl - elapsed);
         startTimer(remaining);
-        addMsg('Self-destructs in ' + fmtTime(remaining), 'sys');
       }
       break;
     case 'msg':
