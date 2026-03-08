@@ -11,8 +11,9 @@ arnon/
 ├── pwa/
 │   └── app.html        # The entire app — single file
 └── relay/
-    ├── server.js        # Blind relay server (Node.js + ws)
-    └── package.json
+    ├── server.js              # Blind relay server (Node.js + ws)
+    ├── package.json
+    └── arnon-relay.service    # systemd service file
 ```
 
 ## How it works
@@ -60,9 +61,14 @@ For full IP anonymity, use Tor Browser.
 ```bash
 # Relay (on VPS)
 useradd -r -s /usr/sbin/nologin arnon
-cd relay && npm install
-# Run as dedicated user via systemd (see arnon-relay.service)
-node server.js --port 9444
+mkdir -p /opt/arnon/relay
+cp relay/server.js relay/package.json /opt/arnon/relay/
+cd /opt/arnon/relay && npm install
+chown -R arnon:arnon /opt/arnon
+cp relay/arnon-relay.service /etc/systemd/system/
+systemctl daemon-reload
+systemctl enable arnon-relay
+systemctl start arnon-relay
 
 # Landing page + PWA — host on GitHub Pages
 # Update RELAY and BASE constants in pwa/app.html to match your domain

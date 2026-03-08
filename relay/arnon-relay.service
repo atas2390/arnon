@@ -1,0 +1,13 @@
+[Unit]
+Description=Arnon Relay
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/node /opt/arnon/relay/server.js --port 9444
+Restart=always
+WorkingDirectory=/opt/arnon/relay
+User=arnon
+Group=arnon
+
+[Install]
+WantedBy=multi-user.target
