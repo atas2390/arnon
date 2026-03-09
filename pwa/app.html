@@ -341,6 +341,7 @@ var recorder = null, chunks = [], recording = false, recTimeout = null;
 async function toggleRec() {
   if (recording) { stopRec(); return; }
   var stream;
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { toast('Voice notes may not work in this browser'); return; }
   try { stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } }); }
   catch (e) { toast('Mic denied'); return; }
 
