@@ -37,7 +37,7 @@ arnon/
 - Relay hardened — runs as dedicated non-root user, rate limiting (5 rooms/IP), 1MB message size limit, 24-char room IDs
 - Accessible — aria labels, keyboard navigation, screen reader support
 - Responsive — works on phone, tablet, desktop
-- Tor Browser compatible
+- Tor Browser compatible (voice notes may not work)
 - Free forever — no company, no investors, no monetization plan
 
 ## Architecture
@@ -56,7 +56,7 @@ arnon/
 | A blob was stored         | What's in the blob          |
 | A blob was picked up      | Who sent it or who it's for |
 
-For full IP anonymity, use Tor Browser.
+For full IP anonymity, use Tor Browser. Voice notes may not work in Tor Browser.
 
 ## Deploy
 
