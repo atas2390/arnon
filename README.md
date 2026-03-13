@@ -56,7 +56,7 @@ arnon/
 | A blob was stored         | What's in the blob          |
 | A blob was picked up      | Who sent it or who it's for |
 
-For full IP anonymity, use Tor Browser. Voice notes may not work in Tor Browser.
+For stronger anonymity, use Tor Browser. For maximum anonymity, consider TAILS or Whonix. Voice notes may not work in Tor Browser.
 
 ## Deploy
 
