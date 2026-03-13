@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Arnon</title>
+<style>
+:root{--bg:#0a0a0a;--sf:#161616;--bd:#2a2a2a;--t1:#eee;--t2:#999;--t3:#666;--bl:#3b82f6;--gn:#22c55e;--rd:#ef4444;--am:#f59e0b}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--t1);-webkit-font-smoothing:antialiased;font-size:16px}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+.screen{display:none;height:100%;flex-direction:column}.screen.on{display:flex}
+
+/* HOME */
+#home{align-items:center;justify-content:center;text-align:center;padding:32px;gap:16px}
+#home h1{font-size:48px;font-weight:700;letter-spacing:-1.5px}
+#home .tag{font-size:17px;color:var(--t2);font-style:italic;margin-bottom:32px}
+.hbtn{width:100%;max-width:320px;padding:18px;border-radius:14px;font-size:17px;font-weight:600}
+.hbtn.pri{background:var(--t1);color:var(--bg)}
+#home .foot{font-size:12px;color:var(--t3);margin-top:32px;line-height:1.8}
+
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:50;align-items:center;justify-content:center;padding:24px}
+.modal-bg.on{display:flex}
+.modal{background:var(--sf);border:1px solid var(--bd);border-radius:16px;padding:28px;width:100%;max-width:380px}
+.modal h3{font-size:19px;font-weight:600;margin-bottom:16px}
+.modal select{width:100%;padding:14px 16px;background:var(--bg);border:1px solid var(--bd);border-radius:12px;color:var(--t1);font-size:16px;outline:none;margin-bottom:14px;font-family:inherit;-webkit-appearance:none}
+.modal select:focus{border-color:var(--bl)}
+.modal label{display:block;font-size:14px;color:var(--t2);margin-bottom:8px}
+.mbtns{display:flex;gap:10px}
+.mbtns button{flex:1;padding:14px;border-radius:12px;font-size:16px;font-weight:600}
+.mcan{background:var(--bg);border:1px solid var(--bd);color:var(--t2)}
+.mgo{background:var(--bl);color:#fff}
+
+/* LINK */
+#link{align-items:center;justify-content:center;text-align:center;padding:32px;gap:16px}
+#link h2{font-size:24px;font-weight:600}
+#link .desc{font-size:16px;color:var(--t2);max-width:340px;line-height:1.6}
+.linkbox{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:16px;font-size:14px;color:var(--bl);word-break:break-all;max-width:400px;width:100%;font-family:monospace;text-align:left}
+.lbtns{display:flex;gap:10px;max-width:400px;width:100%}
+.lbtns button{flex:1;padding:16px;border-radius:12px;font-size:16px;font-weight:600}
+.lcopy{background:var(--t1);color:var(--bg)}
+.lshare{background:var(--sf);border:1px solid var(--bd)}
+.wait{font-size:14px;color:var(--t3);margin-top:24px}
+.ttl-badge{font-size:14px;color:var(--am);margin-top:6px}
+
+/* CHAT */
+#chat{height:100%}
+.cht-hd{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--bd);background:var(--sf);flex-shrink:0}
+.cht-hd h3{font-size:17px;font-weight:600}
+.cht-st{font-size:13px;color:var(--t2);display:flex;align-items:center;gap:6px;margin-top:2px}
+.stdot{width:8px;height:8px;border-radius:50%;background:var(--gn)}.stdot.off{background:var(--rd)}
+.cht-right{display:flex;align-items:center;gap:12px}
+.timer{font-family:monospace;font-size:15px;color:var(--am);font-weight:700}
+.bend{padding:9px 18px;background:var(--rd);color:#fff;border-radius:10px;font-size:14px;font-weight:600}
+
+.msgs{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:8px;-webkit-overflow-scrolling:touch}
+.m{max-width:75%;padding:12px 16px;border-radius:18px;font-size:16px;line-height:1.5;word-wrap:break-word;animation:mi .15s ease}
+@keyframes mi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.m.s{align-self:flex-end;background:var(--bl);color:#fff;border-bottom-right-radius:4px}
+.m.r{align-self:flex-start;background:var(--sf);border:1px solid var(--bd);border-bottom-left-radius:4px}
+.m.sys{align-self:center;color:var(--t2);font-size:13px;padding:6px 0;background:none}
+.m audio{display:block;height:40px;width:240px;margin-top:4px}
+.m a{color:inherit;text-decoration:underline;text-underline-offset:2px;word-break:break-all}
+.m.r a{color:var(--bl)}.m.s a{color:#fff}
+
+.inbar{display:flex;align-items:center;gap:10px;padding:12px 16px;border-top:1px solid var(--bd);background:var(--sf);flex-shrink:0}
+.inbar input{flex:1;padding:14px 18px;background:var(--bg);border:1px solid var(--bd);border-radius:24px;color:var(--t1);font-size:16px;outline:none}
+.inbar input:focus{border-color:#555}
+.ibtn{width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.bsend{background:var(--bl);color:#fff}
+.bsend:disabled{background:var(--bd);color:var(--t3)}
+.bmic{background:var(--bg);border:1px solid var(--bd);color:var(--t2)}
+.bmic.rec{background:var(--rd);border-color:var(--rd);color:#fff;animation:rp 1s infinite}
+@keyframes rp{0%,100%{opacity:1}50%{opacity:.5}}
+
+/* ENDED */
+#ended{align-items:center;justify-content:center;text-align:center;padding:32px;gap:12px}
+#ended h2{font-size:26px;font-weight:600}
+#ended p{font-size:16px;color:var(--t2);max-width:360px;line-height:1.6}
+#ended button{margin-top:20px;padding:16px 36px;background:var(--t1);color:var(--bg);border-radius:12px;font-size:16px;font-weight:600}
+
+.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:var(--t1);color:var(--bg);padding:10px 24px;border-radius:50px;font-size:15px;font-weight:500;z-index:99;opacity:0;transition:opacity .25s;pointer-events:none}.toast.on{opacity:1}
+button:focus-visible,.hbtn:focus-visible,.ibtn:focus-visible,.bend:focus-visible{outline:2px solid var(--bl);outline-offset:2px}
+@media(max-width:500px){.m{max-width:85%}#home h1{font-size:38px}}
+@media(max-width:360px){.lbtns{flex-direction:column}}
+</style>
+</head>
+<body>
+
+<div id="home" class="screen on">
+  <h1>arnon</h1>
+  <div class="tag">You are none.</div>
+  <button class="hbtn pri" onclick="showCreate()">New conversation</button>
+  <div class="foot">End-to-end encrypted · No account · No history<br>Close the tab — everything is gone.</div>
+</div>
+
+<div id="createModal" class="modal-bg" role="dialog" aria-modal="true" aria-label="New conversation" onclick="if(event.target===this)hideCreate()">
+  <div class="modal">
+    <h3>New conversation</h3>
+    <label for="ttlSelect">Self-destruct</label>
+    <select id="ttlSelect">
+      <option value="0">Off</option>
+      <option value="300">5 minutes</option>
+      <option value="900" selected>15 minutes</option>
+      <option value="1800">30 minutes</option>
+      <option value="3600">1 hour</option>
+    </select>
+    <div class="mbtns"><button class="mcan" onclick="hideCreate()">Cancel</button><button class="mgo" onclick="create()">Create</button></div>
+  </div>
+</div>
+
+<div id="link" class="screen">
+  <h2>Share this link</h2>
+  <div class="desc">Send it to the person you want to talk to. Chat starts when they open it.</div>
+  <div class="linkbox" id="linkBox"></div>
+  <div class="lbtns"><button class="lcopy" onclick="copyLink()">Copy</button><button class="lshare" onclick="shareLink()">Share</button></div>
+  <div class="ttl-badge" id="linkTtl"></div>
+  <div class="wait">Waiting for the other person...</div>
+</div>
+
+<div id="chat" class="screen">
+  <div class="cht-hd">
+    <div><h3>arnon</h3><div class="cht-st"><span class="stdot" id="stDot" role="status" aria-label="Connection status"></span><span id="stTxt">Connected</span></div></div>
+    <div class="cht-right">
+      <div class="timer" id="timerEl"></div>
+      <button class="bend" aria-label="End conversation" onclick="endChat()">End</button>
+    </div>
+  </div>
+  <div class="msgs" id="msgs" aria-live="polite" role="log"></div>
+  <div class="inbar">
+    <button class="ibtn bmic" id="micBtn" aria-label="Record voice note" onclick="toggleRec()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></button>
+    <input id="msgIn" placeholder="Message" aria-label="Type a message" onkeydown="if(event.key==='Enter')send()">
+    <button class="ibtn bsend" aria-label="Send message" onclick="send()"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
+  </div>
+</div>
+
+<div id="ended" class="screen">
+  <h2>Conversation destroyed</h2>
+  <p>All messages, keys, and data have been destroyed. Nothing remains.</p>
+  <button onclick="location.reload()">Start new</button>
+</div>
+
+<div class="toast" id="toast" role="alert" aria-live="assertive"></div>
+
+<script>
+var RELAY = 'wss://relay.arnon.app/ws';
+var BASE = 'https://arnon.app/pwa/app.html';
+var ws, room, myKeys, derivedKey, peerPub, connected = false;
+var ttlTotal = 0, ttlRemaining = 0, timerInterval = null;
+var pendingTtl = 0, roomCreatedAt = 0;
+
+// ── UTIL ──
+function show(id) { document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('on'); }); document.getElementById(id).classList.add('on'); }
+function toast(t) { var e = document.getElementById('toast'); e.textContent = t; e.classList.add('on'); setTimeout(function() { e.classList.remove('on'); }, 2500); }
+function addMsg(html, cls) { var d = document.getElementById('msgs'), m = document.createElement('div'); m.className = 'm ' + cls; m.innerHTML = html; d.appendChild(m); d.scrollTop = d.scrollHeight; }
+function escHtml(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+function linkify(h) { return h.replace(/(?:https?:\/\/|xmpp:)[^\s<&]+/gi, function(u) { return '<a href="' + u + '" target="_blank" rel="noopener noreferrer">' + u + '</a>'; }); }
+function confirmLink(e) { var a = e.target.closest('.m a'); if (a) { e.preventDefault(); if (confirm('Opening this link will leave the encrypted chat.\n\n' + a.href)) window.open(a.href, '_blank', 'noopener,noreferrer'); } }
+function fmtTime(s) { var m = Math.floor(s / 60), sec = s % 60; return m + ':' + (sec < 10 ? '0' : '') + sec; }
+
+// ── CRYPTO ──
+async function genKeys() { myKeys = await crypto.subtle.generateKey({ name: 'ECDH', namedCurve: 'P-256' }, true, ['deriveKey']); }
+async function exportPub() { var r = await crypto.subtle.exportKey('raw', myKeys.publicKey); return toB64(new Uint8Array(r)); }
+async function importPub(b64) { return crypto.subtle.importKey('raw', fromB64(b64), { name: 'ECDH', namedCurve: 'P-256' }, false, []); }
+async function derive(pub) { derivedKey = await crypto.subtle.deriveKey({ name: 'ECDH', public: pub }, myKeys.privateKey, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']); }
+
+function toB64(uint8) { var s = ''; for (var i = 0; i < uint8.length; i++) s += String.fromCharCode(uint8[i]); return btoa(s); }
+function fromB64(b64) { var s = atob(b64), a = new Uint8Array(s.length); for (var i = 0; i < s.length; i++) a[i] = s.charCodeAt(i); return a; }
+
+// ── ENCRYPT/DECRYPT ──
+async function enc(plaintext) {
+  var iv = crypto.getRandomValues(new Uint8Array(12));
+  var ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, derivedKey, new TextEncoder().encode(plaintext));
+  return { iv: toB64(iv), ct: toB64(new Uint8Array(ct)) };
+}
+
+async function dec(iv64, ct64) {
+  var pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: fromB64(iv64) }, derivedKey, fromB64(ct64));
+  return new TextDecoder().decode(pt);
+}
+
+async function encBuf(data) {
+  var iv = crypto.getRandomValues(new Uint8Array(12));
+  var buf = data instanceof ArrayBuffer ? new Uint8Array(data) : data;
+  var ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, derivedKey, buf);
+  return { iv: toB64(iv), ct: toB64(new Uint8Array(ct)) };
+}
+
+async function decBuf(iv64, ct64) {
+  return await crypto.subtle.decrypt({ name: 'AES-GCM', iv: fromB64(iv64) }, derivedKey, fromB64(ct64));
+}
+
+// ── TIMER — only starts when both sides are connected ──
+function startTimer(seconds) {
+  if (seconds <= 0) return;
+  ttlTotal = seconds;
+  ttlRemaining = seconds;
+  var el = document.getElementById('timerEl');
+  el.textContent = fmtTime(ttlRemaining);
+  el.style.color = '';
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = setInterval(function() {
+    ttlRemaining--;
+    el.textContent = fmtTime(Math.max(0, ttlRemaining));
+    if (ttlRemaining <= 60) el.style.color = 'var(--rd)';
+    if (ttlRemaining <= 0) { clearInterval(timerInterval); selfDestruct(); }
+  }, 1000);
+}
+
+function selfDestruct() { destroy(); show('ended'); document.querySelector('#ended h2').textContent = 'Self-destructed'; }
+
+// ── WEBSOCKET ──
+function connect(onOpen) {
+  ws = new WebSocket(RELAY);
+  ws.onopen = onOpen;
+  ws.onmessage = async function(e) {
+    var raw = e.data;
+    if (raw instanceof Blob) raw = await raw.text();
+    try { handle(JSON.parse(raw)); } catch(err) {}
+  };
+  ws.onclose = function() { if (connected) { connected = false; setStatus(false); } };
+  ws.onerror = function() { toast('Connection error'); };
+}
+
+function wsend(o) { if (ws && ws.readyState === 1) ws.send(JSON.stringify(o)); }
+
+async function handle(m) {
+  switch (m.type) {
+    case 'created':
+      room = m.room;
+      document.getElementById('linkBox').textContent = BASE + '?r=' + room;
+      if (m.ttl > 0) {
+        document.getElementById('linkTtl').textContent = 'Self-destructs in ' + fmtTime(m.ttl);
+        pendingTtl = m.ttl;
+        roomCreatedAt = Date.now();
+      }
+      show('link');
+      break;
+    case 'joined':
+      if (m.ttl > 0) {
+        pendingTtl = m.ttl - (m.elapsed || 0);
+        roomCreatedAt = Date.now();
+      }
+      addMsg('Connected. Exchanging keys...', 'sys');
+      await sendPub();
+      break;
+    case 'peer_joined':
+      if (m.ttl > 0) {
+        pendingTtl = m.ttl - (m.elapsed || 0);
+        roomCreatedAt = Date.now();
+      }
+      addMsg('Peer connected. Exchanging keys...', 'sys');
+      await sendPub();
+      break;
+    case 'key':
+      peerPub = await importPub(m.pub);
+      await derive(peerPub);
+      connected = true;
+      show('chat');
+      setStatus(true);
+      addMsg('Encrypted connection established.', 'sys');
+      // start timer only now — both sides synced
+      if (pendingTtl > 0) {
+        var elapsed = Math.floor((Date.now() - roomCreatedAt) / 1000);
+        var remaining = Math.max(1, pendingTtl - elapsed);
+        startTimer(remaining);
+      }
+      break;
+    case 'msg':
+      try { addMsg(linkify(escHtml(await dec(m.iv, m.ct))), 'r'); } catch(err) { addMsg('Decryption failed.', 'sys'); }
+      break;
+    case 'voice':
+      try {
+        var buf = await decBuf(m.iv, m.ct);
+        var vmime = m.mime || 'audio/webm';
+        var url = URL.createObjectURL(new Blob([buf], { type: vmime }));
+        addMsg('<audio controls src="' + url + '"></audio>', 'r');
+      } catch(err) { addMsg('Voice decryption failed.', 'sys'); }
+      break;
+    case 'peer_left':
+      connected = false; setStatus(false);
+      addMsg('Peer disconnected.', 'sys');
+      break;
+    case 'destroyed':
+      selfDestruct();
+      break;
+    case 'error':
+      if (m.msg === 'not_found') toast('Room not found');
+      else if (m.msg === 'full') toast('Room is full');
+      break;
+  }
+}
+
+async function sendPub() { wsend({ type: 'key', pub: await exportPub() }); }
+
+function setStatus(on) {
+  document.getElementById('stDot').className = 'stdot' + (on ? '' : ' off');
+  document.getElementById('stTxt').textContent = on ? 'Connected' : 'Disconnected';
+}
+
+// ── ACTIONS ──
+function showCreate() { document.getElementById('createModal').classList.add('on'); }
+function hideCreate() { document.getElementById('createModal').classList.remove('on'); }
+
+async function create() {
+  var ttl = parseInt(document.getElementById('ttlSelect').value);
+  hideCreate();
+  await genKeys();
+  connect(function() { wsend({ type: 'create', ttl: ttl }); });
+}
+
+async function joinRoom(roomId) {
+  room = roomId;
+  await genKeys();
+  connect(function() { wsend({ type: 'join', room: room }); });
+  show('chat');
+}
+
+async function send() {
+  var inp = document.getElementById('msgIn'), text = inp.value.trim();
+  if (!text || !connected || !derivedKey) return;
+  inp.value = '';
+  var e = await enc(text);
+  wsend({ type: 'msg', iv: e.iv, ct: e.ct });
+  addMsg(linkify(escHtml(text)), 's');
+}
+
+function copyLink() { navigator.clipboard.writeText(BASE + '?r=' + room).then(function() { toast('Copied'); }); }
+function shareLink() { if (navigator.share) navigator.share({ title: 'Arnon', url: BASE + '?r=' + room }).catch(function(){}); else copyLink(); }
+function endChat() { destroy(); show('ended'); }
+
+function destroy() {
+  connected = false; derivedKey = null; myKeys = null; peerPub = null; pendingTtl = 0; roomCreatedAt = 0;
+  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+  if (ws) { ws.close(); ws = null; }
+  document.getElementById('msgs').innerHTML = '';
+}
+
+// ── VOICE ──
+var recorder = null, chunks = [], recording = false, recTimeout = null;
+
+async function toggleRec() {
+  if (recording) { stopRec(); return; }
+  var stream;
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { toast('Voice notes may not work in this browser'); return; }
+  try { stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } }); }
+  catch (e) { toast('Mic denied'); return; }
+
+  try { recorder = new MediaRecorder(stream); }
+  catch (e) { toast('Recorder error'); stream.getTracks().forEach(function(t) { t.stop(); }); return; }
+
+  chunks = [];
+  recorder.ondataavailable = function(e) {
+    if (e.data && e.data.size > 0) chunks.push(e.data);
+  };
+  recorder.onstop = async function() {
+    stream.getTracks().forEach(function(t) { t.stop(); });
+    recording = false;
+    document.getElementById('micBtn').classList.remove('rec');
+    clearTimeout(recTimeout);
+    if (!connected || !derivedKey) { toast('Not connected'); return; }
+    if (chunks.length === 0) { toast('No audio recorded'); return; }
+    var mime = recorder.mimeType || 'audio/webm';
+    var blob = new Blob(chunks, { type: mime });
+    var buf = await blob.arrayBuffer();
+    try {
+      var e = await encBuf(buf);
+      wsend({ type: 'voice', iv: e.iv, ct: e.ct, mime: mime });
+      addMsg('<audio controls src="' + URL.createObjectURL(blob) + '"></audio>', 's');
+    } catch (err) { toast('Send failed'); }
+  };
+  recorder.start();
+  recording = true;
+  document.getElementById('micBtn').classList.add('rec');
+  recTimeout = setTimeout(function() { if (recording) stopRec(); }, 30000);
+}
+
+function stopRec() { if (recorder && recorder.state === 'recording') recorder.stop(); }
+
+// ── AUTO JOIN + DESTROY ON CLOSE ──
+window.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('msgs').addEventListener('click', confirmLink);
+  var r = new URLSearchParams(location.search).get('r');
+  if (r) joinRoom(r);
+});
+window.addEventListener('beforeunload', destroy);
+window.addEventListener('pagehide', destroy);
+</script>
+</body>
+</html>
