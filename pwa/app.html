@@ -6,6 +6,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src wss://relay.arnon.app; media-src blob:">
 <title>Arnon</title>
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src wss://relay.arnon.app; media-src blob:; font-src 'none'; img-src 'none'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <style>
 :root{--bg:#0a0a0a;--sf:#161616;--bd:#2a2a2a;--t1:#eee;--t2:#999;--t3:#666;--bl:#3b82f6;--gn:#22c55e;--rd:#ef4444;--am:#f59e0b}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -147,18 +148,20 @@ button:focus-visible,.hbtn:focus-visible,.ibtn:focus-visible,.bend:focus-visible
 <div class="toast" id="toast" role="alert" aria-live="assertive"></div>
 
 <script>
+// ── CONFIG — edit these for self-hosted deployments ──
 var RELAY = 'wss://relay.arnon.app/ws';
 var BASE = 'https://arnon.app/pwa/app.html';
 var ws, room, myKeys, derivedKey, peerPub, connected = false;
 var ttlTotal = 0, ttlRemaining = 0, timerInterval = null;
 var pendingTtl = 0, roomCreatedAt = 0;
+var blobUrls = [];
 
 // ── UTIL ──
 function show(id) { document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('on'); }); document.getElementById(id).classList.add('on'); }
 function toast(t) { var e = document.getElementById('toast'); e.textContent = t; e.classList.add('on'); setTimeout(function() { e.classList.remove('on'); }, 2500); }
 function addMsg(html, cls) { var d = document.getElementById('msgs'), m = document.createElement('div'); m.className = 'm ' + cls; m.innerHTML = html; d.appendChild(m); d.scrollTop = d.scrollHeight; }
-function escHtml(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML.replace(/"/g, '&quot;'); }
-function linkify(h) { return h.replace(/(?:https?:\/\/|xmpp:)[^\s<&]+/gi, function(u) { return '<a href="' + u + '" target="_blank" rel="noopener noreferrer">' + u + '</a>'; }); }
+function escHtml(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+function linkify(h) { return h.replace(/(?:https?:\/\/|xmpp:)[^\s<&"'`]+/gi, function(u) { return '<a href="' + u.replace(/&/g,'&amp;').replace(/"/g,'&quot;') + '" target="_blank" rel="noopener noreferrer">' + u + '</a>'; }); }
 function confirmLink(e) { var a = e.target.closest('.m a'); if (a) { e.preventDefault(); if (confirm('Opening this link will leave the encrypted chat.\n\n' + a.href)) window.open(a.href, '_blank', 'noopener,noreferrer'); } }
 function fmtTime(s) { var m = Math.floor(s / 60), sec = s % 60; return m + ':' + (sec < 10 ? '0' : '') + sec; }
 
@@ -276,8 +279,10 @@ async function handle(m) {
     case 'voice':
       try {
         var buf = await decBuf(m.iv, m.ct);
-        var vmime = /^audio\/\w+$/.test(m.mime) ? m.mime : 'audio/webm';
+        var vmime = m.mime || 'audio/webm';
+        if (!/^audio\/(webm|ogg|mp4|mpeg|wav)(;.*)?$/.test(vmime)) vmime = 'audio/webm';
         var url = URL.createObjectURL(new Blob([buf], { type: vmime }));
+        blobUrls.push(url);
         addMsg('<audio controls src="' + url + '"></audio>', 'r');
       } catch(err) { addMsg('Voice decryption failed.', 'sys'); }
       break;
@@ -318,11 +323,14 @@ async function joinRoom(roomId) {
   await genKeys();
   connect(function() { wsend({ type: 'join', room: room }); });
   show('chat');
+  setStatus(false);
+  document.getElementById('stTxt').textContent = 'Connecting...';
 }
 
 async function send() {
   var inp = document.getElementById('msgIn'), text = inp.value.trim();
-  if (!text || !connected || !derivedKey) return;
+  if (!text) return;
+  if (!connected || !derivedKey) { toast('Waiting for peer to connect'); return; }
   inp.value = '';
   var e = await enc(text);
   wsend({ type: 'msg', iv: e.iv, ct: e.ct });
@@ -335,6 +343,7 @@ function endChat() { destroy(); show('ended'); }
 
 function destroy() {
   connected = false; derivedKey = null; myKeys = null; peerPub = null; pendingTtl = 0; roomCreatedAt = 0;
+  blobUrls.forEach(function(u) { try { URL.revokeObjectURL(u); } catch(e) {} }); blobUrls = [];
   if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
   if (ws) { ws.close(); ws = null; }
   document.querySelectorAll('#msgs audio').forEach(function(a) { URL.revokeObjectURL(a.src); });
@@ -371,7 +380,8 @@ async function toggleRec() {
     try {
       var e = await encBuf(buf);
       wsend({ type: 'voice', iv: e.iv, ct: e.ct, mime: mime });
-      addMsg('<audio controls src="' + URL.createObjectURL(blob) + '"></audio>', 's');
+      var surl = URL.createObjectURL(blob); blobUrls.push(surl);
+      addMsg('<audio controls src="' + surl + '"></audio>', 's');
     } catch (err) { toast('Send failed'); }
   };
   recorder.start();
@@ -386,7 +396,7 @@ function stopRec() { if (recorder && recorder.state === 'recording') recorder.st
 window.addEventListener('DOMContentLoaded', function() {
   document.getElementById('msgs').addEventListener('click', confirmLink);
   var r = new URLSearchParams(location.search).get('r');
-  if (r) { history.replaceState(null, '', location.pathname); joinRoom(r); }
+  if (r) { joinRoom(r); history.replaceState(null, '', location.pathname); }
 });
 window.addEventListener('beforeunload', destroy);
 window.addEventListener('pagehide', destroy);

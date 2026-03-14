@@ -1,0 +1,5 @@
+Contact: https://github.com/atas2390/arnon/issues
+Preferred-Languages: en
+Canonical: https://arnon.app/.well-known/security.txt
+Policy: https://github.com/atas2390/arnon/security/policy
+Expires: 2027-03-14T00:00:00.000Z

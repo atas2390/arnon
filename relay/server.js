@@ -13,7 +13,8 @@ const wss = new WebSocketServer({ port: PORT, maxPayload: MAX_MSG_SIZE });
 console.log('[arnon-relay] :' + PORT);
 
 wss.on('connection', function(ws, req) {
-  var ip = TRUST_PROXY ? (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.socket.remoteAddress : req.socket.remoteAddress;
+  var xff = req.headers['x-forwarded-for'];
+  var ip = xff ? xff.split(',')[0].trim() : req.socket.remoteAddress;
   var room = null;
 
   ws.on('message', function(raw) {
