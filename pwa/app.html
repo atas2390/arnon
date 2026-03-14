@@ -156,7 +156,7 @@ var pendingTtl = 0, roomCreatedAt = 0;
 function show(id) { document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('on'); }); document.getElementById(id).classList.add('on'); }
 function toast(t) { var e = document.getElementById('toast'); e.textContent = t; e.classList.add('on'); setTimeout(function() { e.classList.remove('on'); }, 2500); }
 function addMsg(html, cls) { var d = document.getElementById('msgs'), m = document.createElement('div'); m.className = 'm ' + cls; m.innerHTML = html; d.appendChild(m); d.scrollTop = d.scrollHeight; }
-function escHtml(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+function escHtml(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML.replace(/"/g, '&quot;'); }
 function linkify(h) { return h.replace(/(?:https?:\/\/|xmpp:)[^\s<&]+/gi, function(u) { return '<a href="' + u + '" target="_blank" rel="noopener noreferrer">' + u + '</a>'; }); }
 function confirmLink(e) { var a = e.target.closest('.m a'); if (a) { e.preventDefault(); if (confirm('Opening this link will leave the encrypted chat.\n\n' + a.href)) window.open(a.href, '_blank', 'noopener,noreferrer'); } }
 function fmtTime(s) { var m = Math.floor(s / 60), sec = s % 60; return m + ':' + (sec < 10 ? '0' : '') + sec; }
