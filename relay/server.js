@@ -1,6 +1,7 @@
 const { WebSocketServer } = require('ws');
 const crypto = require('crypto');
 const PORT = parseInt(process.argv.find((_, i, a) => a[i-1] === '--port') || '9444');
+const TRUST_PROXY = process.argv.includes('--trust-proxy');
 const rooms = new Map();
 const ipCount = new Map();
 
