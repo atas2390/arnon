@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="mobile-web-app-capable" content="yes">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src wss://relay.arnon.app; media-src blob:">
 <title>Arnon</title>
 <style>
 :root{--bg:#0a0a0a;--sf:#161616;--bd:#2a2a2a;--t1:#eee;--t2:#999;--t3:#666;--bl:#3b82f6;--gn:#22c55e;--rd:#ef4444;--am:#f59e0b}
@@ -162,7 +163,7 @@ function confirmLink(e) { var a = e.target.closest('.m a'); if (a) { e.preventDe
 function fmtTime(s) { var m = Math.floor(s / 60), sec = s % 60; return m + ':' + (sec < 10 ? '0' : '') + sec; }
 
 // ── CRYPTO ──
-async function genKeys() { myKeys = await crypto.subtle.generateKey({ name: 'ECDH', namedCurve: 'P-256' }, true, ['deriveKey']); }
+async function genKeys() { myKeys = await crypto.subtle.generateKey({ name: 'ECDH', namedCurve: 'P-256' }, false, ['deriveKey']); }
 async function exportPub() { var r = await crypto.subtle.exportKey('raw', myKeys.publicKey); return toB64(new Uint8Array(r)); }
 async function importPub(b64) { return crypto.subtle.importKey('raw', fromB64(b64), { name: 'ECDH', namedCurve: 'P-256' }, false, []); }
 async function derive(pub) { derivedKey = await crypto.subtle.deriveKey({ name: 'ECDH', public: pub }, myKeys.privateKey, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']); }
@@ -336,6 +337,7 @@ function destroy() {
   connected = false; derivedKey = null; myKeys = null; peerPub = null; pendingTtl = 0; roomCreatedAt = 0;
   if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
   if (ws) { ws.close(); ws = null; }
+  document.querySelectorAll('#msgs audio').forEach(function(a) { URL.revokeObjectURL(a.src); });
   document.getElementById('msgs').innerHTML = '';
 }
 
@@ -384,7 +386,7 @@ function stopRec() { if (recorder && recorder.state === 'recording') recorder.st
 window.addEventListener('DOMContentLoaded', function() {
   document.getElementById('msgs').addEventListener('click', confirmLink);
   var r = new URLSearchParams(location.search).get('r');
-  if (r) joinRoom(r);
+  if (r) { history.replaceState(null, '', location.pathname); joinRoom(r); }
 });
 window.addEventListener('beforeunload', destroy);
 window.addEventListener('pagehide', destroy);
