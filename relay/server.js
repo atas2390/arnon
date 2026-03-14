@@ -1,6 +1,7 @@
 const { WebSocketServer } = require('ws');
 const crypto = require('crypto');
 const PORT = parseInt(process.argv.find((_, i, a) => a[i-1] === '--port') || '9444');
+const TRUST_PROXY = process.argv.includes('--trust-proxy');
 const rooms = new Map();
 const ipCount = new Map();
 
@@ -12,7 +13,7 @@ const wss = new WebSocketServer({ port: PORT, maxPayload: MAX_MSG_SIZE });
 console.log('[arnon-relay] :' + PORT);
 
 wss.on('connection', function(ws, req) {
-  var ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+  var ip = TRUST_PROXY ? (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.socket.remoteAddress : req.socket.remoteAddress;
   var room = null;
 
   ws.on('message', function(raw) {
