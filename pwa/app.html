@@ -275,7 +275,7 @@ async function handle(m) {
     case 'voice':
       try {
         var buf = await decBuf(m.iv, m.ct);
-        var vmime = m.mime || 'audio/webm';
+        var vmime = /^audio\/\w+$/.test(m.mime) ? m.mime : 'audio/webm';
         var url = URL.createObjectURL(new Blob([buf], { type: vmime }));
         addMsg('<audio controls src="' + url + '"></audio>', 'r');
       } catch(err) { addMsg('Voice decryption failed.', 'sys'); }
