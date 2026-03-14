@@ -2,7 +2,7 @@
 
 Encrypted conversations that leave no trace. No download. No account. No history.
 
-A complete encrypted messenger — app + relay — in 476 lines of code.
+A complete encrypted messenger — app + relay — in 489 lines of code.
 
 ## Structure
 
@@ -10,6 +10,9 @@ A complete encrypted messenger — app + relay — in 476 lines of code.
 arnon/
 ├── index.html          # Landing page (GitHub Pages)
 ├── accessibility.html  # Accessibility statement
+├── Dockerfile          # Docker setup for relay
+├── .well-known/
+│   └── security.txt    # Security contact info
 ├── pwa/
 │   └── app.html        # The entire app — single file
 └── relay/
@@ -35,6 +38,7 @@ arnon/
 - Close tab = everything destroyed (keys, messages, identity)
 - Blind relay — sees only encrypted blobs in memory, nothing written to disk, nothing to hand over
 - Relay hardened — runs as dedicated non-root user, rate limiting (5 rooms/IP), 1MB message size limit, 24-char room IDs
+- Content Security Policy — restricts scripts, connections, and media sources
 - Accessible — aria labels, keyboard navigation, screen reader support
 - Responsive — works on phone, tablet, desktop
 - Tor Browser compatible (voice notes may not work)
@@ -74,6 +78,13 @@ systemctl start arnon-relay
 
 # Landing page + PWA — host on GitHub Pages
 # Update RELAY and BASE constants in pwa/app.html to match your domain
+```
+
+### Docker
+
+```bash
+docker build -t arnon-relay .
+docker run -d --name arnon-relay -p 9444:9444 --restart always arnon-relay
 ```
 
 ## License
