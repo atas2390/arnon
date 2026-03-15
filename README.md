@@ -2,7 +2,7 @@
 
 Encrypted conversations that leave no trace. No download. No account. No history.
 
-A complete encrypted messenger — app + relay — in 522 lines of code.
+A complete encrypted messenger — app + relay — in 489 lines of code.
 
 ## Structure
 
