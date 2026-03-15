@@ -392,6 +392,15 @@ async function toggleRec() {
 
 function stopRec() { if (recorder && recorder.state === 'recording') recorder.stop(); }
 
+// ── KEEP BOTTOM MESSAGE ANCHORED ──
+var vHeight = window.innerHeight;
+window.addEventListener('resize', function() {
+  var distance = vHeight - window.innerHeight;
+  if (distance > 1)
+    document.getElementById('msgs').scrollBy({ top: distance });
+  vHeight = window.innerHeight;
+});
+
 // ── AUTO JOIN + DESTROY ON CLOSE ──
 window.addEventListener('DOMContentLoaded', function() {
   document.getElementById('msgs').addEventListener('click', confirmLink);
