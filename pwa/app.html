@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,interactive-widget=resizes-content">
 <meta name="mobile-web-app-capable" content="yes">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src wss://relay.arnon.app; media-src blob:">
 <title>Arnon</title>
@@ -10,7 +10,7 @@
 <style>
 :root{--bg:#0a0a0a;--sf:#161616;--bd:#2a2a2a;--t1:#eee;--t2:#999;--t3:#666;--bl:#3b82f6;--gn:#22c55e;--rd:#ef4444;--am:#f59e0b}
 *{margin:0;padding:0;box-sizing:border-box}
-html,body{height:100%;overflow:hidden}
+html,body{height:100%;height:100dvh;overflow:hidden}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--t1);-webkit-font-smoothing:antialiased;font-size:16px}
 button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
 .screen{display:none;height:100%;flex-direction:column}.screen.on{display:flex}
@@ -49,7 +49,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .ttl-badge{font-size:14px;color:var(--am);margin-top:6px}
 
 /* CHAT */
-#chat{height:100%}
+#chat{position:fixed;top:0;left:0;right:0;bottom:0;height:100%}
 .cht-hd{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--bd);background:var(--sf);flex-shrink:0}
 .cht-hd h3{font-size:17px;font-weight:600}
 .cht-st{font-size:13px;color:var(--t2);display:flex;align-items:center;gap:6px;margin-top:2px}
@@ -400,6 +400,39 @@ window.addEventListener('DOMContentLoaded', function() {
 });
 window.addEventListener('beforeunload', destroy);
 window.addEventListener('pagehide', destroy);
+
+// ── VISUAL VIEWPORT — fix input field when soft keyboard opens ──
+(function() {
+  var chatEl = document.getElementById('chat');
+  var msgIn = document.getElementById('msgIn');
+
+  if (window.visualViewport) {
+    function onViewportResize() {
+      if (!chatEl.classList.contains('on')) return;
+      var vv = window.visualViewport;
+      chatEl.style.height = vv.height + 'px';
+      chatEl.style.top = vv.offsetTop + 'px';
+    }
+    window.visualViewport.addEventListener('resize', onViewportResize);
+    window.visualViewport.addEventListener('scroll', onViewportResize);
+  }
+
+  // Firefox Android fallback: ensure input scrolls into view on focus
+  msgIn.addEventListener('focus', function() {
+    setTimeout(function() {
+      if (window.visualViewport) {
+        chatEl.style.height = window.visualViewport.height + 'px';
+        chatEl.style.top = window.visualViewport.offsetTop + 'px';
+      }
+      msgIn.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    }, 300);
+  });
+
+  msgIn.addEventListener('blur', function() {
+    chatEl.style.height = '';
+    chatEl.style.top = '';
+  });
+})();
 </script>
 </body>
 </html>
